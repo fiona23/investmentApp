@@ -1,11 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, StyleSheet, ScrollView, Alert } from 'react-native';
-import {
-  Text,
-  Button,
-  HelperText,
-  ActivityIndicator,
-} from 'react-native-paper';
+import { Text, Button, ActivityIndicator } from 'react-native-paper';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp } from '@react-navigation/native';
@@ -31,7 +26,6 @@ const InvestmentAmountScreen: React.FC = () => {
   const [fund, setFund] = useState<Fund | null>(null);
   const [amount, setAmount] = useState(0);
   const [isValid, setIsValid] = useState(false);
-  const [errors, setErrors] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -57,13 +51,9 @@ const InvestmentAmountScreen: React.FC = () => {
     setAmount(newAmount);
   };
 
-  const handleValidationChange = useCallback(
-    (valid: boolean, validationErrors: string[]) => {
-      setIsValid(valid);
-      setErrors(validationErrors);
-    },
-    []
-  );
+  const handleValidationChange = useCallback((valid: boolean) => {
+    setIsValid(valid);
+  }, []);
 
   const handleContinue = () => {
     if (!isValid) {
@@ -141,17 +131,6 @@ const InvestmentAmountScreen: React.FC = () => {
         onChange={handleAmountChange}
         onValidationChange={handleValidationChange}
       />
-
-      {/* Error Display */}
-      {errors.length > 0 && (
-        <View style={styles.errorContainer}>
-          {errors.map((error, index) => (
-            <HelperText key={index} type="error" visible={true}>
-              {error}
-            </HelperText>
-          ))}
-        </View>
-      )}
 
       {/* Action Buttons */}
       <View style={styles.actions}>
