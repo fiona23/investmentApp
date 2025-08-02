@@ -23,7 +23,7 @@ import { Fund } from '../types/fund';
 import AmountInput from '../components/AmountInput';
 import { validateInvestmentAmount } from '../utils/validation';
 import { formatPercentage, formatCurrency } from '../utils/formatting';
-import { useInvestmentSummary } from '../services/investmentService';
+import { useInvestmentStore } from '../store/investmentStore';
 
 type InvestmentAmountScreenNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
@@ -45,9 +45,8 @@ const InvestmentAmountScreen = () => {
   const [amountError, setAmountError] = useState('');
   const [isLoading, setIsLoading] = useState(true);
 
-  // React Query hooks
-  const { data: investmentSummary, isLoading: isLoadingSummary } =
-    useInvestmentSummary();
+  // Use Zustand store for investment summary
+  const { investmentSummary } = useInvestmentStore();
 
   useEffect(() => {
     loadFund();
@@ -124,7 +123,7 @@ const InvestmentAmountScreen = () => {
     navigation.goBack();
   };
 
-  if (isLoading || isLoadingSummary) {
+  if (isLoading) {
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" />
@@ -142,7 +141,7 @@ const InvestmentAmountScreen = () => {
     );
   }
 
-  const remainingAllowance = investmentSummary?.remainingISALimit || 0;
+  const remainingAllowance = investmentSummary.remainingISALimit;
   const usedAllowance = 20000 - remainingAllowance;
   const allowanceProgress = usedAllowance / 20000;
 
@@ -193,7 +192,7 @@ const InvestmentAmountScreen = () => {
             <View style={styles.allowanceRow}>
               <Text variant="bodyMedium">Used this year:</Text>
               <Text variant="bodyMedium" style={styles.allowanceValue}>
-                {formatCurrency(investmentSummary?.currentYearTotal || 0)}
+                {formatCurrency(investmentSummary.currentYearTotal)}
               </Text>
             </View>
             <View style={styles.allowanceRow}>

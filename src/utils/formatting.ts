@@ -1,32 +1,38 @@
-export function formatCurrency(amount: number): string {
+export const formatCurrency = (amount: number): string => {
   return new Intl.NumberFormat('en-GB', {
     style: 'currency',
     currency: 'GBP',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
   }).format(amount);
-}
+};
 
-export function formatPercentage(value: number): string {
-  return `${value.toFixed(1)}%`;
-}
+export const formatPercentage = (percentage: number): string => {
+  return `${percentage.toFixed(1)}%`;
+};
 
-export function formatDate(date: Date): string {
-  return new Intl.DateTimeFormat('en-GB', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-  }).format(date);
-}
+export const formatDate = (date: Date | string): string => {
+  try {
+    const dateObj = typeof date === 'string' ? new Date(date) : date;
+    if (isNaN(dateObj.getTime())) {
+      return 'Invalid date';
+    }
+    return new Intl.DateTimeFormat('en-GB', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+    }).format(dateObj);
+  } catch {
+    return 'Invalid date';
+  }
+};
 
-export function formatRiskLevel(riskLevel: string): string {
-  return `${riskLevel} Risk`;
-}
+export const formatRiskLevel = (riskLevel: string): string => {
+  return riskLevel.charAt(0).toUpperCase() + riskLevel.slice(1);
+};
 
-export function formatCategory(category: string): string {
-  return category;
-}
+export const formatCategory = (category: string): string => {
+  return category.charAt(0).toUpperCase() + category.slice(1);
+};
 
-export function formatStatus(status: string): string {
+export const formatStatus = (status: string): string => {
   return status.charAt(0).toUpperCase() + status.slice(1);
-}
+};

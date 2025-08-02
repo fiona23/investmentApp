@@ -4,6 +4,7 @@ export type RootStackParamList = {
   InvestmentAmount: { fundId: string };
   InvestmentSummary: { fundId: string; amount: number };
   FundDetails: { fundId: string };
+  TransactionHistory: undefined;
 };
 
 export type TabParamList = {

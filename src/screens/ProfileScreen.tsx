@@ -1,20 +1,25 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
 import { Text, Card, Button, List, Avatar, Divider } from 'react-native-paper';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { formatCurrency } from '../utils/formatting';
+import { useInvestmentStore } from '../store/investmentStore';
 
 const ProfileScreen = () => {
   const insets = useSafeAreaInsets();
+  const { investmentSummary, loadInvestmentSummary, isLoading } =
+    useInvestmentStore();
 
   // Mock user data - in real app this would come from state management
   const mockUser = {
     name: 'John Doe',
     email: 'john.doe@example.com',
     isaNumber: 'ISA-2024-001',
-    totalInvested: 25000,
-    remainingLimit: 0,
   };
+
+  useEffect(() => {
+    loadInvestmentSummary();
+  }, [loadInvestmentSummary]);
 
   const handleEditProfile = () => {
     // Navigate to edit profile screen
@@ -88,14 +93,18 @@ const ProfileScreen = () => {
             <View style={styles.infoRow}>
               <Text variant="bodyMedium">Total Invested:</Text>
               <Text variant="bodyLarge" style={styles.infoValue}>
-                {formatCurrency(mockUser.totalInvested)}
+                {isLoading
+                  ? 'Loading...'
+                  : formatCurrency(investmentSummary?.totalInvested || 0)}
               </Text>
             </View>
 
             <View style={styles.infoRow}>
               <Text variant="bodyMedium">Remaining Limit:</Text>
               <Text variant="bodyLarge" style={styles.infoValue}>
-                {formatCurrency(mockUser.remainingLimit)}
+                {isLoading
+                  ? 'Loading...'
+                  : formatCurrency(investmentSummary?.remainingISALimit || 0)}
               </Text>
             </View>
           </Card.Content>

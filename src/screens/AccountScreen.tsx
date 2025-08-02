@@ -1,16 +1,12 @@
-import React from 'react';
-import { View, StyleSheet, ScrollView } from 'react-native';
+import React, { useEffect } from 'react';
+import { View, ScrollView, StyleSheet } from 'react-native';
 import { Text, Card, Button } from 'react-native-paper';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { RootStackParamList } from '../types/navigation';
-import { formatCurrency, formatPercentage } from '../utils/formatting';
-import {
-  useInvestmentSummary,
-  useInvestments,
-  useHasInvestments,
-} from '../services/investmentService';
+import { useInvestmentStore } from '../store/investmentStore';
+import { formatCurrency, formatDate } from '../utils/formatting';
 import LoadingState from '../components/LoadingState';
 import ErrorState from '../components/ErrorState';
 import EmptyState from '../components/EmptyState';
@@ -23,60 +19,45 @@ type AccountScreenNavigationProp = NativeStackNavigationProp<
 const AccountScreen = () => {
   const navigation = useNavigation<AccountScreenNavigationProp>();
   const insets = useSafeAreaInsets();
-
-  // React Query hooks
   const {
-    data: investmentSummary,
-    isLoading: isLoadingSummary,
-    error: summaryError,
-    refetch: refetchSummary,
-  } = useInvestmentSummary();
+    investmentSummary,
+    investments,
+    isLoading,
+    error,
+    loadInvestmentSummary,
+    loadInvestments,
+  } = useInvestmentStore();
 
-  const {
-    data: investments,
-    isLoading: isLoadingInvestments,
-    error: investmentsError,
-    refetch: refetchInvestments,
-  } = useInvestments();
-
-  const { hasInvestments, isLoading: isLoadingHasInvestments } =
-    useHasInvestments();
-
-  const handleViewHistory = () => {
-    // Navigate to investment history screen
-    // navigation.navigate('InvestmentHistory');
-  };
+  useEffect(() => {
+    loadInvestmentSummary();
+    loadInvestments();
+  }, [loadInvestmentSummary, loadInvestments]);
 
   const handleBrowseFunds = () => {
     navigation.navigate('Main', { screen: 'Fund' });
   };
 
-  const handleNewInvestment = () => {
-    navigation.navigate('Main', { screen: 'Fund' });
+  const handleViewTransactions = () => {
+    navigation.navigate('TransactionHistory');
   };
 
-  // Loading states
-  if (isLoadingSummary || isLoadingInvestments || isLoadingHasInvestments) {
+  if (isLoading) {
     return (
       <View style={styles.container}>
-        <LoadingState
-          message="Loading your investments..."
-          variant="fullscreen"
-        />
+        <LoadingState message="Loading your account..." variant="fullscreen" />
       </View>
     );
   }
 
-  // Error states
-  if (summaryError || investmentsError) {
+  if (error) {
     return (
       <View style={styles.container}>
         <ErrorState
-          title="Failed to load investments"
-          message="We couldn't load your investment data. Please check your connection and try again."
+          title="Failed to load account"
+          message={error}
           onRetry={() => {
-            refetchSummary();
-            refetchInvestments();
+            loadInvestmentSummary();
+            loadInvestments();
           }}
           variant="fullscreen"
         />
@@ -84,8 +65,8 @@ const AccountScreen = () => {
     );
   }
 
-  // Empty state - no investments yet
-  if (!hasInvestments) {
+  // Show empty state if no investments
+  if (investmentSummary.investmentCount === 0) {
     return (
       <View style={styles.container}>
         <ScrollView
@@ -99,27 +80,24 @@ const AccountScreen = () => {
           {/* Header */}
           <View style={styles.header}>
             <Text variant="headlineLarge" style={styles.title}>
-              My Account
+              Your Account
             </Text>
             <Text variant="bodyLarge" style={styles.subtitle}>
-              Welcome to your investment journey
+              Track your investment portfolio
             </Text>
           </View>
 
-          {/* Empty State */}
           <EmptyState
-            title="Start your investment journey"
-            message="You haven't made any investments yet. Start building your portfolio by making your first investment."
+            title="No investments yet"
+            message="Start your investment journey by exploring our range of funds"
             actionLabel="Browse Funds"
             onAction={handleBrowseFunds}
-            variant="card"
           />
         </ScrollView>
       </View>
     );
   }
 
-  // Main content - user has investments
   return (
     <View style={styles.container}>
       <ScrollView
@@ -133,108 +111,99 @@ const AccountScreen = () => {
         {/* Header */}
         <View style={styles.header}>
           <Text variant="headlineLarge" style={styles.title}>
-            My Account
+            Your Account
           </Text>
           <Text variant="bodyLarge" style={styles.subtitle}>
-            Investment Summary
+            Track your investment portfolio
           </Text>
         </View>
 
-        {/* Investment Summary Card */}
+        {/* Investment Summary */}
         <Card style={styles.summaryCard} mode="outlined">
           <Card.Content>
             <Text variant="titleLarge" style={styles.summaryTitle}>
-              Portfolio Overview
+              Investment Summary
             </Text>
-
             <View style={styles.summaryRow}>
               <Text variant="bodyMedium">Total Invested:</Text>
               <Text variant="bodyLarge" style={styles.summaryValue}>
-                {formatCurrency(investmentSummary?.totalInvested || 0)}
+                {formatCurrency(investmentSummary.totalInvested)}
               </Text>
             </View>
-
             <View style={styles.summaryRow}>
-              <Text variant="bodyMedium">Investments:</Text>
+              <Text variant="bodyMedium">Number of Investments:</Text>
               <Text variant="bodyLarge" style={styles.summaryValue}>
-                {investmentSummary?.investmentCount || 0}
+                {investmentSummary.investmentCount}
               </Text>
             </View>
-
             <View style={styles.summaryRow}>
-              <Text variant="bodyMedium">This Year:</Text>
+              <Text variant="bodyMedium">This Year's Total:</Text>
               <Text variant="bodyLarge" style={styles.summaryValue}>
-                {formatCurrency(investmentSummary?.currentYearTotal || 0)}
+                {formatCurrency(investmentSummary.currentYearTotal)}
               </Text>
             </View>
-
             <View style={styles.summaryRow}>
               <Text variant="bodyMedium">ISA Remaining:</Text>
               <Text variant="bodyLarge" style={styles.summaryValue}>
-                {formatCurrency(investmentSummary?.remainingISALimit || 0)}
-              </Text>
-            </View>
-
-            <View style={styles.summaryRow}>
-              <Text variant="bodyMedium">Avg Return:</Text>
-              <Text variant="bodyLarge" style={styles.summaryValue}>
-                {formatPercentage(investmentSummary?.averageReturn || 0)}
+                {formatCurrency(investmentSummary.remainingISALimit)}
               </Text>
             </View>
           </Card.Content>
         </Card>
 
-        {/* Recent Investments */}
-        <View style={styles.section}>
-          <Text variant="titleLarge" style={styles.sectionTitle}>
-            Recent Investments
-          </Text>
-
-          {investments?.map(investment => (
-            <Card
-              key={investment.id}
-              style={styles.investmentCard}
-              mode="outlined"
-            >
-              <Card.Content>
-                <View style={styles.investmentHeader}>
-                  <Text variant="titleMedium" style={styles.fundName}>
+        {/* Recent Transactions */}
+        <Card style={styles.transactionsCard} mode="outlined">
+          <Card.Content>
+            <View style={styles.transactionsHeader}>
+              <Text variant="titleLarge" style={styles.transactionsTitle}>
+                Recent Transactions
+              </Text>
+              <Button
+                mode="text"
+                onPress={handleViewTransactions}
+                style={styles.viewAllButton}
+              >
+                View All
+              </Button>
+            </View>
+            {investments.slice(0, 3).map(investment => (
+              <View key={investment.id} style={styles.transactionItem}>
+                <View style={styles.transactionInfo}>
+                  <Text variant="bodyMedium" style={styles.fundName}>
                     {investment.fundName}
                   </Text>
-                  <Text variant="bodyLarge" style={styles.investmentAmount}>
-                    {formatCurrency(investment.amount)}
+                  <Text variant="bodySmall" style={styles.transactionDate}>
+                    {formatDate(investment.createdAt)}
                   </Text>
                 </View>
-
-                <View style={styles.investmentDetails}>
-                  <Text variant="bodySmall" style={styles.investmentDate}>
-                    {investment.date.toLocaleDateString()}
+                <View style={styles.transactionAmount}>
+                  <Text variant="bodyLarge" style={styles.amount}>
+                    {formatCurrency(investment.amount)}
                   </Text>
-                  <Text variant="bodySmall" style={styles.investmentStatus}>
+                  <Text variant="bodySmall" style={styles.status}>
                     {investment.status}
                   </Text>
                 </View>
-              </Card.Content>
-            </Card>
-          ))}
-        </View>
+              </View>
+            ))}
+          </Card.Content>
+        </Card>
 
         {/* Action Buttons */}
         <View style={styles.actions}>
           <Button
             mode="contained"
-            onPress={handleNewInvestment}
+            onPress={handleBrowseFunds}
             style={styles.actionButton}
           >
-            New Investment
+            Browse Funds
           </Button>
-
           <Button
             mode="outlined"
-            onPress={handleViewHistory}
+            onPress={handleViewTransactions}
             style={styles.actionButton}
           >
-            View History
+            View Transaction History
           </Button>
         </View>
       </ScrollView>
@@ -280,38 +249,47 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#2196F3',
   },
-  section: {
+  transactionsCard: {
     marginBottom: 24,
   },
-  sectionTitle: {
-    fontWeight: '600',
-    marginBottom: 16,
-  },
-  investmentCard: {
-    marginBottom: 12,
-  },
-  investmentHeader: {
+  transactionsHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: 16,
+  },
+  transactionsTitle: {
+    fontWeight: '600',
+  },
+  viewAllButton: {
+    paddingVertical: 0,
+  },
+  transactionItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+  },
+  transactionInfo: {
+    flex: 1,
   },
   fundName: {
-    flex: 1,
     fontWeight: '500',
+    marginBottom: 4,
   },
-  investmentAmount: {
+  transactionDate: {
+    color: '#666',
+  },
+  transactionAmount: {
+    alignItems: 'flex-end',
+  },
+  amount: {
     fontWeight: '600',
     color: '#2196F3',
   },
-  investmentDetails: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  investmentDate: {
-    color: '#666',
-  },
-  investmentStatus: {
+  status: {
     color: '#4CAF50',
     textTransform: 'capitalize',
   },

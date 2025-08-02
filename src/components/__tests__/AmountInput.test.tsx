@@ -10,7 +10,7 @@ describe('AmountInput', () => {
       <AmountInput value="" onChangeText={mockOnChangeText} />
     );
 
-    expect(getByText('ISA Annual Limit: £20,000')).toBeTruthy();
+    expect(getByText('ISA Annual Limit: £20,000.00')).toBeTruthy();
   });
 
   it('renders with custom placeholder', () => {
@@ -22,7 +22,7 @@ describe('AmountInput', () => {
       />
     );
 
-    expect(getByText('ISA Annual Limit: £20,000')).toBeTruthy();
+    expect(getByText('ISA Annual Limit: £20,000.00')).toBeTruthy();
   });
 
   it('displays error message when error prop is provided', () => {
@@ -42,7 +42,7 @@ describe('AmountInput', () => {
       <AmountInput value="" onChangeText={mockOnChangeText} maxAmount={20000} />
     );
 
-    expect(getByText('Max Investment: £20,000')).toBeTruthy();
+    expect(getByText('Max Investment: £20,000.00')).toBeTruthy();
   });
 
   it('displays ISA limit when max amount is not provided', () => {
@@ -50,6 +50,6 @@ describe('AmountInput', () => {
       <AmountInput value="" onChangeText={mockOnChangeText} />
     );
 
-    expect(getByText('ISA Annual Limit: £20,000')).toBeTruthy();
+    expect(getByText('ISA Annual Limit: £20,000.00')).toBeTruthy();
   });
 });

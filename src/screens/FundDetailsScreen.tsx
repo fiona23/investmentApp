@@ -23,10 +23,8 @@ import {
   formatPercentage,
   formatRiskLevel,
 } from '../utils/formatting';
-import {
-  useFundDetails,
-  useInvestmentSummary,
-} from '../services/investmentService';
+import { useFundDetails } from '../services/investmentService';
+import { useInvestmentStore } from '../store/investmentStore';
 import LoadingState from '../components/LoadingState';
 import ErrorState from '../components/ErrorState';
 
@@ -51,8 +49,8 @@ const FundDetailsScreen = () => {
     refetch: refetchFund,
   } = useFundDetails(fundId);
 
-  const { data: investmentSummary, isLoading: isLoadingSummary } =
-    useInvestmentSummary();
+  // Use Zustand store for investment summary
+  const { investmentSummary } = useInvestmentStore();
 
   const handleSelectFund = () => {
     navigation.navigate('InvestmentAmount', { fundId });
@@ -63,7 +61,7 @@ const FundDetailsScreen = () => {
   };
 
   // Loading state
-  if (isLoadingFund || isLoadingSummary) {
+  if (isLoadingFund) {
     return (
       <View style={styles.container}>
         <LoadingState message="Loading fund details..." variant="fullscreen" />
@@ -85,7 +83,7 @@ const FundDetailsScreen = () => {
     );
   }
 
-  const remainingAllowance = investmentSummary?.remainingISALimit || 0;
+  const remainingAllowance = investmentSummary.remainingISALimit;
   const usedAllowance = 20000 - remainingAllowance;
   const allowanceProgress = usedAllowance / 20000;
 

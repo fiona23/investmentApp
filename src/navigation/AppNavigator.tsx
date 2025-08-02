@@ -7,6 +7,7 @@ import FundSelectionScreen from '../screens/FundSelectionScreen';
 import InvestmentAmountScreen from '../screens/InvestmentAmountScreen';
 import InvestmentSummaryScreen from '../screens/InvestmentSummaryScreen';
 import FundDetailsScreen from '../screens/FundDetailsScreen';
+import TransactionHistoryScreen from '../screens/TransactionHistoryScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -30,6 +31,10 @@ const AppNavigator = () => {
           component={InvestmentSummaryScreen}
         />
         <Stack.Screen name="FundDetails" component={FundDetailsScreen} />
+        <Stack.Screen
+          name="TransactionHistory"
+          component={TransactionHistoryScreen}
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );

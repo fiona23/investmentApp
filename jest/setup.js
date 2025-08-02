@@ -6,6 +6,18 @@ import { setUpTests } from 'react-native-reanimated';
 
 setUpTests();
 
+// Mock AsyncStorage
+jest.mock('@react-native-async-storage/async-storage', () => ({
+  getItem: jest.fn(),
+  setItem: jest.fn(),
+  removeItem: jest.fn(),
+  clear: jest.fn(),
+  getAllKeys: jest.fn(),
+  multiGet: jest.fn(),
+  multiSet: jest.fn(),
+  multiRemove: jest.fn(),
+}));
+
 // Mock react-native-screens
 jest.mock('react-native-screens', () => {
   const RNScreens = jest.requireActual('react-native-screens');

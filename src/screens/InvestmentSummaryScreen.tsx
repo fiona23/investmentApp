@@ -9,7 +9,8 @@ import { RootStackParamList } from '../types/navigation';
 import InvestmentSummary from '../components/InvestmentSummary';
 import LoadingState from '../components/LoadingState';
 import ErrorState from '../components/ErrorState';
-import { useCreateInvestment, useFunds } from '../services/investmentService';
+import { useFunds } from '../services/investmentService';
+import { useInvestmentStore } from '../store/investmentStore';
 
 type InvestmentSummaryScreenNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
@@ -27,8 +28,9 @@ const InvestmentSummaryScreen = () => {
   const { fundId, amount } = route.params;
 
   // React Query hooks
-  const createInvestmentMutation = useCreateInvestment();
   const { data: funds } = useFunds();
+  const { addInvestment, isLoading, error, investmentSummary } =
+    useInvestmentStore();
 
   // Get fund name
   const fund = funds?.find(f => f.id === fundId);
@@ -40,16 +42,15 @@ const InvestmentSummaryScreen = () => {
         fundId,
         fundName,
         amount,
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        date: new Date(),
+        status: 'pending' as const,
       };
 
-      await createInvestmentMutation.mutateAsync(investmentData);
+      addInvestment(investmentData);
 
       // Navigate back to account screen on success
       navigation.navigate('Main');
     } catch (error) {
-      // Error is handled by the mutation
       console.error('Failed to create investment:', error);
     }
   };
@@ -63,7 +64,7 @@ const InvestmentSummaryScreen = () => {
   };
 
   // Loading state during investment creation
-  if (createInvestmentMutation.isPending) {
+  if (isLoading) {
     return (
       <View style={styles.container}>
         <LoadingState
@@ -75,12 +76,12 @@ const InvestmentSummaryScreen = () => {
   }
 
   // Error state for investment creation
-  if (createInvestmentMutation.isError) {
+  if (error) {
     return (
       <View style={styles.container}>
         <ErrorState
           title="Failed to create investment"
-          message="We couldn't process your investment. Please try again or contact support if the problem persists."
+          message={error}
           onRetry={handleConfirmInvestment}
           variant="fullscreen"
         />
@@ -121,7 +122,7 @@ const InvestmentSummaryScreen = () => {
         <InvestmentSummary
           fundId={fundId}
           amount={amount}
-          isaRemaining={0} // This would come from API
+          isaRemaining={investmentSummary.remainingISALimit}
         />
 
         {/* Action Buttons */}
@@ -130,7 +131,7 @@ const InvestmentSummaryScreen = () => {
             mode="contained"
             onPress={handleConfirmInvestment}
             style={styles.confirmButton}
-            disabled={createInvestmentMutation.isPending}
+            disabled={isLoading}
           >
             Confirm Investment
           </Button>
@@ -139,7 +140,7 @@ const InvestmentSummaryScreen = () => {
             mode="outlined"
             onPress={handleBack}
             style={styles.actionButton}
-            disabled={createInvestmentMutation.isPending}
+            disabled={isLoading}
           >
             Back
           </Button>
@@ -148,7 +149,7 @@ const InvestmentSummaryScreen = () => {
             mode="text"
             onPress={handleCancel}
             style={styles.actionButton}
-            disabled={createInvestmentMutation.isPending}
+            disabled={isLoading}
           >
             Cancel
           </Button>
