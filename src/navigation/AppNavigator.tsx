@@ -1,12 +1,12 @@
-import React from "react";
-import { NavigationContainer } from "@react-navigation/native";
-import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { Ionicons } from "@expo/vector-icons";
+import React from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { Ionicons } from '@expo/vector-icons';
 
 // Import screens
-import AccountScreen from "../screens/AccountScreen";
-import FundScreen from "../screens/FundScreen";
-import ProfileScreen from "../screens/ProfileScreen";
+import AccountScreen from '../screens/AccountScreen';
+import FundScreen from '../screens/FundScreen';
+import ProfileScreen from '../screens/ProfileScreen';
 
 const Tab = createBottomTabNavigator();
 
@@ -17,18 +17,18 @@ const AppNavigator = () => {
         screenOptions={{
           headerShown: false,
           tabBarStyle: {
-            backgroundColor: "#ffffff",
+            backgroundColor: '#ffffff',
             borderTopWidth: 1,
-            borderTopColor: "#E5E5EA",
+            borderTopColor: '#E5E5EA',
             paddingBottom: 8,
             paddingTop: 8,
             height: 88,
           },
-          tabBarActiveTintColor: "#007AFF",
-          tabBarInactiveTintColor: "#8E8E93",
+          tabBarActiveTintColor: '#007AFF',
+          tabBarInactiveTintColor: '#8E8E93',
           tabBarLabelStyle: {
             fontSize: 12,
-            fontWeight: "500",
+            fontWeight: '500',
           },
         }}
       >
@@ -38,12 +38,12 @@ const AppNavigator = () => {
           options={{
             tabBarIcon: ({ focused, color }) => (
               <Ionicons
-                name={focused ? "wallet" : "wallet-outline"}
+                name={focused ? 'wallet' : 'wallet-outline'}
                 size={24}
                 color={color}
               />
             ),
-            tabBarLabel: "Account",
+            tabBarLabel: 'Account',
           }}
         />
         <Tab.Screen
@@ -52,12 +52,12 @@ const AppNavigator = () => {
           options={{
             tabBarIcon: ({ focused, color }) => (
               <Ionicons
-                name={focused ? "trending-up" : "trending-up-outline"}
+                name={focused ? 'trending-up' : 'trending-up-outline'}
                 size={24}
                 color={color}
               />
             ),
-            tabBarLabel: "Funds",
+            tabBarLabel: 'Funds',
           }}
         />
         <Tab.Screen
@@ -66,12 +66,12 @@ const AppNavigator = () => {
           options={{
             tabBarIcon: ({ focused, color }) => (
               <Ionicons
-                name={focused ? "person" : "person-outline"}
+                name={focused ? 'person' : 'person-outline'}
                 size={24}
                 color={color}
               />
             ),
-            tabBarLabel: "Profile",
+            tabBarLabel: 'Profile',
           }}
         />
       </Tab.Navigator>

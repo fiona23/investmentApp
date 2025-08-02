@@ -27,6 +27,13 @@ pnpm install
 - `pnpm ios` - Run on iOS simulator/device
 - `pnpm web` - Run in web browser
 
+### Code Quality
+
+- `pnpm lint` - Run ESLint
+- `pnpm lint:fix` - Run ESLint with auto-fix
+- `pnpm format` - Format code with Prettier
+- `pnpm format:check` - Check code formatting
+
 ### Package Management
 
 - `pnpm install` - Install dependencies
@@ -54,6 +61,10 @@ investmentApp/
 - **Expo** - Development platform
 - **TypeScript** - Type-safe JavaScript
 - **pnpm** - Fast, disk space efficient package manager
+- **Gluestack UI** - Modern UI component library
+- **React Navigation** - Navigation library
+- **ESLint + Prettier** - Code quality and formatting
+- **Husky** - Git hooks for code quality
 
 ## Development
 
@@ -68,8 +79,22 @@ investmentApp/
 
 1. Install dependencies: `pnpm install`
 2. Make your changes
-3. Test your changes on different platforms
-4. Submit a pull request
+3. Check code quality: `pnpm lint`
+4. Format code: `pnpm format`
+5. Test your changes on different platforms
+6. Submit a pull request
+
+## Development Tools
+
+### Gluestack UI
+
+This project uses Gluestack UI for modern, accessible components. See the `src/components/InvestmentCard.tsx` for an example.
+
+### Code Quality
+
+- ESLint for code linting with TypeScript support
+- Prettier for code formatting
+- Husky for pre-commit hooks that run linting and formatting
 
 ## License
 

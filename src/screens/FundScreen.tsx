@@ -1,6 +1,6 @@
-import React from "react";
-import { View, Text, StyleSheet, ScrollView } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import React from 'react';
+import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const FundScreen = () => {
   return (
@@ -17,7 +17,7 @@ const FundScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f8f9fa",
+    backgroundColor: '#f8f9fa',
   },
   scrollContent: {
     padding: 20,
@@ -27,8 +27,8 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 28,
-    fontWeight: "bold",
-    color: "#1a1a1a",
+    fontWeight: 'bold',
+    color: '#1a1a1a',
     marginBottom: 8,
   },
 });
