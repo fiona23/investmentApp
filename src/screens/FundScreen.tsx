@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
 import { Text, Button } from 'react-native-paper';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types/navigation';
@@ -12,42 +13,49 @@ type FundScreenNavigationProp = NativeStackNavigationProp<
 
 const FundScreen = () => {
   const navigation = useNavigation<FundScreenNavigationProp>();
+  const insets = useSafeAreaInsets();
 
   const handleBrowseFunds = () => {
     navigation.navigate('FundSelection');
   };
 
   return (
-    <ScrollView
-      style={styles.container}
-      contentContainerStyle={styles.scrollContent}
-    >
-      <View style={styles.header}>
-        <Text variant="headlineLarge" style={styles.title}>
-          Investment Funds
-        </Text>
-        <Text variant="bodyLarge" style={styles.subtitle}>
-          Choose from our range of investment options
-        </Text>
-      </View>
+    <View style={styles.container}>
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={[
+          styles.scrollContent,
+          { paddingTop: insets.top + 20, paddingBottom: insets.bottom + 20 },
+        ]}
+        showsVerticalScrollIndicator={false}
+      >
+        <View style={styles.header}>
+          <Text variant="headlineLarge" style={styles.title}>
+            Investment Funds
+          </Text>
+          <Text variant="bodyLarge" style={styles.subtitle}>
+            Choose from our range of investment options
+          </Text>
+        </View>
 
-      <View style={styles.content}>
-        <Text variant="titleMedium" style={styles.sectionTitle}>
-          Ready to Invest?
-        </Text>
-        <Text variant="bodyMedium" style={styles.description}>
-          Start building your investment portfolio with our range of funds
-        </Text>
+        <View style={styles.content}>
+          <Text variant="titleMedium" style={styles.sectionTitle}>
+            Ready to Invest?
+          </Text>
+          <Text variant="bodyMedium" style={styles.description}>
+            Start building your investment portfolio with our range of funds
+          </Text>
 
-        <Button
-          mode="contained"
-          onPress={handleBrowseFunds}
-          style={styles.browseButton}
-        >
-          Browse All Funds
-        </Button>
-      </View>
-    </ScrollView>
+          <Button
+            mode="contained"
+            onPress={handleBrowseFunds}
+            style={styles.browseButton}
+          >
+            Browse All Funds
+          </Button>
+        </View>
+      </ScrollView>
+    </View>
   );
 };
 
@@ -56,8 +64,11 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#f8f9fa',
   },
+  scrollView: {
+    flex: 1,
+  },
   scrollContent: {
-    padding: 20,
+    paddingHorizontal: 20,
   },
   header: {
     marginBottom: 30,

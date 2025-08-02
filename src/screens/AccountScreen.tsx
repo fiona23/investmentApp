@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
 import { Text, Card, Button } from 'react-native-paper';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types/navigation';
@@ -13,6 +14,7 @@ type AccountScreenNavigationProp = NativeStackNavigationProp<
 
 const AccountScreen = () => {
   const navigation = useNavigation<AccountScreenNavigationProp>();
+  const insets = useSafeAreaInsets();
 
   // Mock data - in real app this would come from state management
   const mockInvestmentSummary = {
@@ -57,118 +59,124 @@ const AccountScreen = () => {
   };
 
   return (
-    <ScrollView
-      style={styles.container}
-      contentContainerStyle={styles.contentContainer}
-    >
-      {/* Header */}
-      <View style={styles.header}>
-        <Text variant="headlineLarge" style={styles.title}>
-          My Account
-        </Text>
-        <Text variant="bodyLarge" style={styles.subtitle}>
-          Investment Summary
-        </Text>
-      </View>
+    <View style={styles.container}>
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={[
+          styles.contentContainer,
+          { paddingTop: insets.top + 16, paddingBottom: insets.bottom + 16 },
+        ]}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Header */}
+        <View style={styles.header}>
+          <Text variant="headlineLarge" style={styles.title}>
+            My Account
+          </Text>
+          <Text variant="bodyLarge" style={styles.subtitle}>
+            Investment Summary
+          </Text>
+        </View>
 
-      {/* Investment Summary Card */}
-      <Card style={styles.summaryCard} mode="outlined">
-        <Card.Content>
-          <Text variant="titleLarge" style={styles.summaryTitle}>
-            Portfolio Overview
+        {/* Investment Summary Card */}
+        <Card style={styles.summaryCard} mode="outlined">
+          <Card.Content>
+            <Text variant="titleLarge" style={styles.summaryTitle}>
+              Portfolio Overview
+            </Text>
+
+            <View style={styles.summaryRow}>
+              <Text variant="bodyMedium">Total Invested:</Text>
+              <Text variant="bodyLarge" style={styles.summaryValue}>
+                {formatCurrency(mockInvestmentSummary.totalInvested)}
+              </Text>
+            </View>
+
+            <View style={styles.summaryRow}>
+              <Text variant="bodyMedium">Investments:</Text>
+              <Text variant="bodyLarge" style={styles.summaryValue}>
+                {mockInvestmentSummary.investmentCount}
+              </Text>
+            </View>
+
+            <View style={styles.summaryRow}>
+              <Text variant="bodyMedium">This Year:</Text>
+              <Text variant="bodyLarge" style={styles.summaryValue}>
+                {formatCurrency(mockInvestmentSummary.currentYearTotal)}
+              </Text>
+            </View>
+
+            <View style={styles.summaryRow}>
+              <Text variant="bodyMedium">ISA Remaining:</Text>
+              <Text variant="bodyLarge" style={styles.summaryValue}>
+                {formatCurrency(mockInvestmentSummary.remainingISALimit)}
+              </Text>
+            </View>
+
+            <View style={styles.summaryRow}>
+              <Text variant="bodyMedium">Avg Return:</Text>
+              <Text variant="bodyLarge" style={styles.summaryValue}>
+                {formatPercentage(mockInvestmentSummary.averageReturn)}
+              </Text>
+            </View>
+          </Card.Content>
+        </Card>
+
+        {/* Recent Investments */}
+        <View style={styles.section}>
+          <Text variant="titleLarge" style={styles.sectionTitle}>
+            Recent Investments
           </Text>
 
-          <View style={styles.summaryRow}>
-            <Text variant="bodyMedium">Total Invested:</Text>
-            <Text variant="bodyLarge" style={styles.summaryValue}>
-              {formatCurrency(mockInvestmentSummary.totalInvested)}
-            </Text>
-          </View>
+          {mockRecentInvestments.map(investment => (
+            <Card
+              key={investment.id}
+              style={styles.investmentCard}
+              mode="outlined"
+            >
+              <Card.Content>
+                <View style={styles.investmentHeader}>
+                  <Text variant="titleMedium" style={styles.fundName}>
+                    {investment.fundName}
+                  </Text>
+                  <Text variant="bodyLarge" style={styles.investmentAmount}>
+                    {formatCurrency(investment.amount)}
+                  </Text>
+                </View>
 
-          <View style={styles.summaryRow}>
-            <Text variant="bodyMedium">Investments:</Text>
-            <Text variant="bodyLarge" style={styles.summaryValue}>
-              {mockInvestmentSummary.investmentCount}
-            </Text>
-          </View>
+                <View style={styles.investmentDetails}>
+                  <Text variant="bodySmall" style={styles.investmentDate}>
+                    {investment.date.toLocaleDateString()}
+                  </Text>
+                  <Text variant="bodySmall" style={styles.investmentStatus}>
+                    {investment.status}
+                  </Text>
+                </View>
+              </Card.Content>
+            </Card>
+          ))}
+        </View>
 
-          <View style={styles.summaryRow}>
-            <Text variant="bodyMedium">This Year:</Text>
-            <Text variant="bodyLarge" style={styles.summaryValue}>
-              {formatCurrency(mockInvestmentSummary.currentYearTotal)}
-            </Text>
-          </View>
-
-          <View style={styles.summaryRow}>
-            <Text variant="bodyMedium">ISA Remaining:</Text>
-            <Text variant="bodyLarge" style={styles.summaryValue}>
-              {formatCurrency(mockInvestmentSummary.remainingISALimit)}
-            </Text>
-          </View>
-
-          <View style={styles.summaryRow}>
-            <Text variant="bodyMedium">Avg Return:</Text>
-            <Text variant="bodyLarge" style={styles.summaryValue}>
-              {formatPercentage(mockInvestmentSummary.averageReturn)}
-            </Text>
-          </View>
-        </Card.Content>
-      </Card>
-
-      {/* Recent Investments */}
-      <View style={styles.section}>
-        <Text variant="titleLarge" style={styles.sectionTitle}>
-          Recent Investments
-        </Text>
-
-        {mockRecentInvestments.map(investment => (
-          <Card
-            key={investment.id}
-            style={styles.investmentCard}
-            mode="outlined"
+        {/* Action Buttons */}
+        <View style={styles.actions}>
+          <Button
+            mode="contained"
+            onPress={handleNewInvestment}
+            style={styles.actionButton}
           >
-            <Card.Content>
-              <View style={styles.investmentHeader}>
-                <Text variant="titleMedium" style={styles.fundName}>
-                  {investment.fundName}
-                </Text>
-                <Text variant="bodyLarge" style={styles.investmentAmount}>
-                  {formatCurrency(investment.amount)}
-                </Text>
-              </View>
+            New Investment
+          </Button>
 
-              <View style={styles.investmentDetails}>
-                <Text variant="bodySmall" style={styles.investmentDate}>
-                  {investment.date.toLocaleDateString()}
-                </Text>
-                <Text variant="bodySmall" style={styles.investmentStatus}>
-                  {investment.status}
-                </Text>
-              </View>
-            </Card.Content>
-          </Card>
-        ))}
-      </View>
-
-      {/* Action Buttons */}
-      <View style={styles.actions}>
-        <Button
-          mode="contained"
-          onPress={handleNewInvestment}
-          style={styles.actionButton}
-        >
-          New Investment
-        </Button>
-
-        <Button
-          mode="outlined"
-          onPress={handleViewHistory}
-          style={styles.actionButton}
-        >
-          View History
-        </Button>
-      </View>
-    </ScrollView>
+          <Button
+            mode="outlined"
+            onPress={handleViewHistory}
+            style={styles.actionButton}
+          >
+            View History
+          </Button>
+        </View>
+      </ScrollView>
+    </View>
   );
 };
 
@@ -177,8 +185,11 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#f5f5f5',
   },
+  scrollView: {
+    flex: 1,
+  },
   contentContainer: {
-    padding: 16,
+    paddingHorizontal: 16,
   },
   header: {
     marginBottom: 24,

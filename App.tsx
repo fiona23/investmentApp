@@ -6,11 +6,11 @@ import AppNavigator from './src/navigation/AppNavigator';
 
 export default function App() {
   return (
-    <PaperProvider>
-      <SafeAreaProvider>
+    <SafeAreaProvider>
+      <PaperProvider>
         <AppNavigator />
         <StatusBar style="auto" />
-      </SafeAreaProvider>
-    </PaperProvider>
+      </PaperProvider>
+    </SafeAreaProvider>
   );
 }
