@@ -1,6 +1,7 @@
 export interface Investment {
   id: string;
   fundId: string;
+  fundName: string;
   amount: number;
   date: Date;
   status: 'pending' | 'confirmed' | 'cancelled';
@@ -13,6 +14,7 @@ export interface InvestmentSummary {
   investmentCount: number;
   currentYearTotal: number;
   remainingISALimit: number;
+  averageReturn: number;
 }
 
 export interface InvestmentForm {

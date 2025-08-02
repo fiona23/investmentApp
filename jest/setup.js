@@ -200,3 +200,60 @@ jest.mock('react-native-paper', () => {
     Avatar,
   };
 });
+
+// Mock @tanstack/react-query
+jest.mock('@tanstack/react-query', () => {
+  const React = require('react');
+  const { View } = require('react-native');
+
+  const QueryClient = function () {
+    return {
+      invalidateQueries: jest.fn(),
+      setQueryData: jest.fn(),
+    };
+  };
+
+  const QueryClientProvider = ({ children }) =>
+    React.createElement(View, { testID: 'query-client-provider' }, children);
+
+  const useQuery = jest.fn(() => ({
+    data: null,
+    isLoading: false,
+    error: null,
+    refetch: jest.fn(),
+  }));
+
+  const useMutation = jest.fn(() => ({
+    mutate: jest.fn(),
+    mutateAsync: jest.fn(),
+    isPending: false,
+    isError: false,
+    error: null,
+  }));
+
+  const useQueryClient = jest.fn(() => ({
+    invalidateQueries: jest.fn(),
+    setQueryData: jest.fn(),
+  }));
+
+  return {
+    QueryClient,
+    QueryClientProvider,
+    useQuery,
+    useMutation,
+    useQueryClient,
+  };
+});
+
+// Mock @expo/vector-icons
+jest.mock('@expo/vector-icons', () => {
+  const React = require('react');
+  const { Text: RNText } = require('react-native');
+
+  const Ionicons = ({ name, ...props }) =>
+    React.createElement(RNText, { ...props }, name);
+
+  return {
+    Ionicons,
+  };
+});

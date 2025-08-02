@@ -1,197 +1,169 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
-import { Card, Text, Divider, Chip } from 'react-native-paper';
-import { Fund } from '../types/fund';
-import {
-  formatCurrency,
-  formatPercentage,
-  formatRiskLevel,
-} from '../utils/formatting';
-import { APP_CONSTANTS } from '../utils/constants';
+import { Card, Text, Chip } from 'react-native-paper';
+import { formatCurrency } from '../utils/formatting';
+import { FUND_DATA } from '../utils/constants';
 
 interface InvestmentSummaryProps {
-  fund: Fund;
+  fundId: string;
   amount: number;
-  warnings?: string[];
+  isaRemaining: number;
 }
 
 const InvestmentSummary: React.FC<InvestmentSummaryProps> = ({
-  fund,
+  fundId,
   amount,
-  warnings = [],
+  isaRemaining,
 }) => {
-  const isOverLimit = amount > APP_CONSTANTS.ISA_ANNUAL_LIMIT;
+  // Find fund data
+  const fund = FUND_DATA.find(f => f.id === fundId);
 
-  return (
-    <View style={styles.container}>
+  if (!fund) {
+    return (
       <Card style={styles.card} mode="outlined">
         <Card.Content>
-          <Text variant="titleLarge" style={styles.title}>
-            Investment Summary
+          <Text variant="titleLarge" style={styles.errorTitle}>
+            Fund not found
           </Text>
-
-          <Divider style={styles.divider} />
-
-          {/* Fund Information */}
-          <View style={styles.section}>
-            <Text variant="titleMedium" style={styles.sectionTitle}>
-              Fund Details
-            </Text>
-            <View style={styles.fundInfo}>
-              <Text variant="bodyLarge" style={styles.fundName}>
-                {fund.name}
-              </Text>
-              <Chip mode="outlined" style={styles.riskChip}>
-                {formatRiskLevel(fund.riskLevel)}
-              </Chip>
-            </View>
-            <Text variant="bodyMedium" style={styles.description}>
-              {fund.description}
-            </Text>
-          </View>
-
-          <Divider style={styles.divider} />
-
-          {/* Investment Details */}
-          <View style={styles.section}>
-            <Text variant="titleMedium" style={styles.sectionTitle}>
-              Investment Details
-            </Text>
-            <View style={styles.detailsRow}>
-              <Text variant="bodyMedium">Amount:</Text>
-              <Text variant="bodyLarge" style={styles.amount}>
-                {formatCurrency(amount)}
-              </Text>
-            </View>
-            <View style={styles.detailsRow}>
-              <Text variant="bodyMedium">Fund Category:</Text>
-              <Text variant="bodyMedium">{fund.category}</Text>
-            </View>
-            <View style={styles.detailsRow}>
-              <Text variant="bodyMedium">Annual Return:</Text>
-              <Text variant="bodyMedium">
-                {formatPercentage(fund.performance)}
-              </Text>
-            </View>
-          </View>
-
-          <Divider style={styles.divider} />
-
-          {/* ISA Information */}
-          <View style={styles.section}>
-            <Text variant="titleMedium" style={styles.sectionTitle}>
-              ISA Information
-            </Text>
-            <View style={styles.detailsRow}>
-              <Text variant="bodyMedium">Annual Limit:</Text>
-              <Text variant="bodyMedium">
-                {formatCurrency(APP_CONSTANTS.ISA_ANNUAL_LIMIT)}
-              </Text>
-            </View>
-            <View style={styles.detailsRow}>
-              <Text variant="bodyMedium">Remaining:</Text>
-              <Text variant="bodyMedium">
-                {formatCurrency(APP_CONSTANTS.ISA_ANNUAL_LIMIT - amount)}
-              </Text>
-            </View>
-          </View>
-
-          {/* Warnings */}
-          {warnings.length > 0 && (
-            <>
-              <Divider style={styles.divider} />
-              <View style={styles.section}>
-                <Text variant="titleMedium" style={styles.warningTitle}>
-                  Warnings
-                </Text>
-                {warnings.map((warning, index) => (
-                  <Text key={index} variant="bodyMedium" style={styles.warning}>
-                    • {warning}
-                  </Text>
-                ))}
-              </View>
-            </>
-          )}
-
-          {/* Over Limit Warning */}
-          {isOverLimit && (
-            <>
-              <Divider style={styles.divider} />
-              <View style={styles.section}>
-                <Text variant="titleMedium" style={styles.warningTitle}>
-                  Important Notice
-                </Text>
-                <Text variant="bodyMedium" style={styles.warning}>
-                  This investment exceeds the ISA annual limit of{' '}
-                  {formatCurrency(APP_CONSTANTS.ISA_ANNUAL_LIMIT)}. Any amount
-                  over this limit will not receive ISA tax benefits.
-                </Text>
-              </View>
-            </>
-          )}
         </Card.Content>
       </Card>
-    </View>
+    );
+  }
+
+  const warnings = amount > 20000 ? ['Amount exceeds ISA annual limit'] : [];
+  const isOverLimit = amount > isaRemaining;
+
+  return (
+    <Card style={styles.card} mode="outlined">
+      <Card.Content>
+        <Text variant="titleLarge" style={styles.title}>
+          Investment Summary
+        </Text>
+
+        {/* Fund Details */}
+        <View style={styles.section}>
+          <Text variant="titleMedium" style={styles.sectionTitle}>
+            Fund Details
+          </Text>
+          <View style={styles.detailRow}>
+            <Text variant="bodyMedium">Fund Name:</Text>
+            <Text variant="bodyLarge" style={styles.detailValue}>
+              {fund.name}
+            </Text>
+          </View>
+          <View style={styles.detailRow}>
+            <Text variant="bodyMedium">Category:</Text>
+            <Text variant="bodyLarge" style={styles.detailValue}>
+              {fund.category}
+            </Text>
+          </View>
+          <View style={styles.detailRow}>
+            <Text variant="bodyMedium">Risk Level:</Text>
+            <Chip mode="outlined" style={styles.riskChip}>
+              {fund.riskLevel}
+            </Chip>
+          </View>
+        </View>
+
+        {/* Investment Details */}
+        <View style={styles.section}>
+          <Text variant="titleMedium" style={styles.sectionTitle}>
+            Investment Details
+          </Text>
+          <View style={styles.detailRow}>
+            <Text variant="bodyMedium">Amount:</Text>
+            <Text variant="bodyLarge" style={styles.detailValue}>
+              {formatCurrency(amount)}
+            </Text>
+          </View>
+          <View style={styles.detailRow}>
+            <Text variant="bodyMedium">ISA Annual Limit:</Text>
+            <Text variant="bodyLarge" style={styles.detailValue}>
+              {formatCurrency(isaRemaining)}
+            </Text>
+          </View>
+        </View>
+
+        {/* Warnings */}
+        {warnings.length > 0 && (
+          <View style={styles.section}>
+            <Text variant="titleMedium" style={styles.warningTitle}>
+              Warnings
+            </Text>
+            {warnings.map((warning, index) => (
+              <Text key={index} variant="bodySmall" style={styles.warningText}>
+                • {warning}
+              </Text>
+            ))}
+          </View>
+        )}
+
+        {/* Over Limit Notice */}
+        {isOverLimit && (
+          <View style={styles.section}>
+            <Text variant="titleMedium" style={styles.overLimitTitle}>
+              Over ISA Limit
+            </Text>
+            <Text variant="bodySmall" style={styles.overLimitText}>
+              This investment will exceed your ISA annual limit. Any amount over
+              the limit will be invested outside of your ISA wrapper.
+            </Text>
+          </View>
+        )}
+      </Card.Content>
+    </Card>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    padding: 16,
-  },
   card: {
-    elevation: 2,
+    marginBottom: 16,
   },
   title: {
-    textAlign: 'center',
-    marginBottom: 16,
     fontWeight: '600',
+    marginBottom: 20,
   },
-  divider: {
-    marginVertical: 16,
+  errorTitle: {
+    color: '#f44336',
+    textAlign: 'center',
   },
   section: {
-    marginBottom: 16,
+    marginBottom: 20,
   },
   sectionTitle: {
+    fontWeight: '600',
     marginBottom: 12,
-    fontWeight: '600',
   },
-  fundInfo: {
+  detailRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 8,
   },
-  fundName: {
-    flex: 1,
+  detailValue: {
     fontWeight: '500',
-  },
-  riskChip: {
-    marginLeft: 8,
-  },
-  description: {
-    color: '#666',
-    lineHeight: 20,
-  },
-  detailsRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  amount: {
-    fontWeight: '600',
     color: '#2196F3',
   },
-  warningTitle: {
-    marginBottom: 8,
-    color: '#FF9800',
-    fontWeight: '600',
+  riskChip: {
+    backgroundColor: '#f0f0f0',
   },
-  warning: {
-    color: '#FF9800',
+  warningTitle: {
+    fontWeight: '600',
+    marginBottom: 8,
+    color: '#ff9800',
+  },
+  warningText: {
+    color: '#ff9800',
     marginBottom: 4,
+  },
+  overLimitTitle: {
+    fontWeight: '600',
+    marginBottom: 8,
+    color: '#f44336',
+  },
+  overLimitText: {
+    color: '#f44336',
+    lineHeight: 18,
   },
 });
 

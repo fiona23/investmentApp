@@ -1,87 +1,72 @@
 import React from 'react';
-import { render } from '../../test/test-utils';
+import { render, screen } from '@testing-library/react-native';
 import InvestmentSummary from '../InvestmentSummary';
-import { Fund } from '../../types/fund';
 
-const mockFund: Fund = {
-  id: 'test-fund',
-  name: 'Test Fund',
-  description: 'A test fund for testing purposes',
-  category: 'Equities',
-  riskLevel: 'Medium',
-  performance: 5.5,
-  minInvestment: 100,
-  maxInvestment: 20000,
-  isActive: true,
-  createdAt: new Date(),
-  updatedAt: new Date(),
-};
+// Mock the constants
+jest.mock('../../utils/constants', () => ({
+  FUND_DATA: [
+    {
+      id: 'test-fund',
+      name: 'Test Fund',
+      category: 'Equities',
+      riskLevel: 'Medium Risk',
+      description: 'A test fund for testing purposes',
+      performance: 5.5,
+    },
+  ],
+}));
 
 describe('InvestmentSummary', () => {
-  it('renders investment summary title', () => {
-    const { getByText } = render(
-      <InvestmentSummary fund={mockFund} amount={1000} />
-    );
+  const defaultProps = {
+    fundId: 'test-fund',
+    amount: 1000,
+    isaRemaining: 20000,
+  };
 
-    expect(getByText('Investment Summary')).toBeTruthy();
+  it('renders investment summary title', () => {
+    render(<InvestmentSummary {...defaultProps} />);
+    expect(screen.getByText('Investment Summary')).toBeTruthy();
   });
 
   it('displays fund information correctly', () => {
-    const { getByText } = render(
-      <InvestmentSummary fund={mockFund} amount={1000} />
-    );
-
-    expect(getByText('Fund Details')).toBeTruthy();
-    expect(getByText('Test Fund')).toBeTruthy();
-    expect(getByText('Medium Risk')).toBeTruthy();
-    expect(getByText('A test fund for testing purposes')).toBeTruthy();
+    render(<InvestmentSummary {...defaultProps} />);
+    expect(screen.getByText('Fund Details')).toBeTruthy();
+    expect(screen.getByText('Test Fund')).toBeTruthy();
+    expect(screen.getByText('Equities')).toBeTruthy();
+    expect(screen.getByText('Medium Risk')).toBeTruthy();
   });
 
   it('displays investment details correctly', () => {
-    const { getByText } = render(
-      <InvestmentSummary fund={mockFund} amount={1000} />
-    );
-
-    expect(getByText('Investment Details')).toBeTruthy();
-    expect(getByText('Amount:')).toBeTruthy();
-    expect(getByText('£1,000')).toBeTruthy();
-    expect(getByText('Fund Category:')).toBeTruthy();
-    expect(getByText('Equities')).toBeTruthy();
-    expect(getByText('Annual Return:')).toBeTruthy();
-    expect(getByText('5.5%')).toBeTruthy();
+    render(<InvestmentSummary {...defaultProps} />);
+    expect(screen.getByText('Investment Details')).toBeTruthy();
+    expect(screen.getByText('Amount:')).toBeTruthy();
+    expect(screen.getByText('£1,000')).toBeTruthy();
+    expect(screen.getByText('ISA Annual Limit:')).toBeTruthy();
+    expect(screen.getByText('£20,000')).toBeTruthy();
   });
 
-  it('displays ISA information correctly', () => {
-    const { getByText } = render(
-      <InvestmentSummary fund={mockFund} amount={1000} />
-    );
-
-    expect(getByText('ISA Information')).toBeTruthy();
-    expect(getByText('Annual Limit:')).toBeTruthy();
-    expect(getByText('£20,000')).toBeTruthy();
-    expect(getByText('Remaining:')).toBeTruthy();
-    expect(getByText('£19,000')).toBeTruthy();
+  it('shows warnings when amount exceeds limit', () => {
+    render(<InvestmentSummary {...defaultProps} amount={25000} />);
+    expect(screen.getByText('Warnings')).toBeTruthy();
+    expect(screen.getByText('• Amount exceeds ISA annual limit')).toBeTruthy();
   });
 
-  it('shows warnings when provided', () => {
-    const warnings = ['Warning 1', 'Warning 2'];
-    const { getByText } = render(
-      <InvestmentSummary fund={mockFund} amount={1000} warnings={warnings} />
+  it('shows over limit notice when amount exceeds ISA remaining', () => {
+    render(
+      <InvestmentSummary
+        {...defaultProps}
+        amount={25000}
+        isaRemaining={10000}
+      />
     );
-
-    expect(getByText('Warnings')).toBeTruthy();
-    expect(getByText('• Warning 1')).toBeTruthy();
-    expect(getByText('• Warning 2')).toBeTruthy();
-  });
-
-  it('shows over limit warning when amount exceeds ISA limit', () => {
-    const { getByText } = render(
-      <InvestmentSummary fund={mockFund} amount={25000} />
-    );
-
-    expect(getByText('Important Notice')).toBeTruthy();
+    expect(screen.getByText('Over ISA Limit')).toBeTruthy();
     expect(
-      getByText(/This investment exceeds the ISA annual limit/)
+      screen.getByText(/This investment will exceed your ISA annual limit/)
     ).toBeTruthy();
+  });
+
+  it('shows error when fund is not found', () => {
+    render(<InvestmentSummary {...defaultProps} fundId="non-existent-fund" />);
+    expect(screen.getByText('Fund not found')).toBeTruthy();
   });
 });

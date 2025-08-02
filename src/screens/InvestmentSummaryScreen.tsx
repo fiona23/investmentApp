@@ -1,73 +1,53 @@
-import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, ScrollView, Alert } from 'react-native';
-import { Text, Button, ActivityIndicator } from 'react-native-paper';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import React from 'react';
+import { View, StyleSheet, ScrollView } from 'react-native';
+import { Button } from 'react-native-paper';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { RouteProp } from '@react-navigation/native';
 import { RootStackParamList } from '../types/navigation';
-import { Fund } from '../types/fund';
 import InvestmentSummary from '../components/InvestmentSummary';
-import { FUND_DATA } from '../utils/constants';
+import { useCreateInvestment } from '../services/investmentService';
+import LoadingState from '../components/LoadingState';
+import ErrorState from '../components/ErrorState';
 
 type InvestmentSummaryScreenNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
   'InvestmentSummary'
 >;
+
 type InvestmentSummaryScreenRouteProp = RouteProp<
   RootStackParamList,
   'InvestmentSummary'
 >;
 
-const InvestmentSummaryScreen: React.FC = () => {
+const InvestmentSummaryScreen = () => {
   const navigation = useNavigation<InvestmentSummaryScreenNavigationProp>();
   const route = useRoute<InvestmentSummaryScreenRouteProp>();
+  const insets = useSafeAreaInsets();
+
   const { fundId, amount } = route.params;
 
-  const [fund, setFund] = useState<Fund | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  // React Query mutation for creating investment
+  const createInvestmentMutation = useCreateInvestment();
 
-  useEffect(() => {
-    loadFund();
-  }, [fundId]);
+  const handleConfirmInvestment = async () => {
+    try {
+      const investmentData = {
+        fundId,
+        fundName: 'Cushon Equities Fund', // This would come from fund data
+        amount,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
 
-  const loadFund = () => {
-    setIsLoading(true);
-    // Simulate API call
-    setTimeout(() => {
-      const foundFund = FUND_DATA.find(f => f.id === fundId);
-      if (foundFund) {
-        setFund(foundFund);
-      } else {
-        Alert.alert('Error', 'Fund not found');
-        navigation.goBack();
-      }
-      setIsLoading(false);
-    }, 500);
-  };
+      await createInvestmentMutation.mutateAsync(investmentData);
 
-  const handleConfirm = () => {
-    if (!fund) {
-      Alert.alert('Error', 'Fund information not available.');
-      return;
+      // Navigate back to account screen on success
+      navigation.navigate('Main');
+    } catch (error) {
+      // Error is handled by the mutation
+      console.error('Failed to create investment:', error);
     }
-
-    setIsSubmitting(true);
-
-    // Simulate API call
-    setTimeout(() => {
-      setIsSubmitting(false);
-      Alert.alert(
-        'Investment Confirmed',
-        `Your investment of £${amount.toLocaleString()} in ${fund.name} has been confirmed.`,
-        [
-          {
-            text: 'OK',
-            onPress: () => navigation.navigate('Main'),
-          },
-        ]
-      );
-    }, 2000);
   };
 
   const handleBack = () => {
@@ -75,84 +55,82 @@ const InvestmentSummaryScreen: React.FC = () => {
   };
 
   const handleCancel = () => {
-    Alert.alert(
-      'Cancel Investment',
-      'Are you sure you want to cancel this investment?',
-      [
-        {
-          text: 'No',
-          style: 'cancel',
-        },
-        {
-          text: 'Yes',
-          style: 'destructive',
-          onPress: () => navigation.navigate('Main'),
-        },
-      ]
-    );
+    navigation.navigate('Main');
   };
 
-  if (isLoading) {
+  // Loading state during investment creation
+  if (createInvestmentMutation.isPending) {
     return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" />
-        <Text style={styles.loadingText}>Loading investment details...</Text>
+      <View style={styles.container}>
+        <LoadingState
+          message="Creating your investment..."
+          variant="fullscreen"
+        />
       </View>
     );
   }
 
-  if (!fund) {
+  // Error state for investment creation
+  if (createInvestmentMutation.isError) {
     return (
-      <View style={styles.errorContainer}>
-        <Text style={styles.errorText}>Fund not found</Text>
-        <Button onPress={handleBack}>Go Back</Button>
+      <View style={styles.container}>
+        <ErrorState
+          title="Failed to create investment"
+          message="We couldn't process your investment. Please try again or contact support if the problem persists."
+          onRetry={handleConfirmInvestment}
+          variant="fullscreen"
+        />
       </View>
     );
   }
-
-  const warnings = amount > 20000 ? ['Amount exceeds ISA annual limit'] : [];
 
   return (
-    <ScrollView
-      style={styles.container}
-      contentContainerStyle={styles.contentContainer}
-    >
-      {/* Header */}
-      <View style={styles.header}>
-        <Text variant="headlineMedium" style={styles.title}>
-          Confirm Investment
-        </Text>
-        <Text variant="bodyLarge" style={styles.subtitle}>
-          Please review your investment details before confirming
-        </Text>
-      </View>
+    <View style={styles.container}>
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={[
+          styles.contentContainer,
+          { paddingTop: insets.top + 16, paddingBottom: insets.bottom + 16 },
+        ]}
+        showsVerticalScrollIndicator={false}
+      >
+        <InvestmentSummary
+          fundId={fundId}
+          amount={amount}
+          isaRemaining={0} // This would come from API
+        />
 
-      {/* Investment Summary */}
-      <InvestmentSummary fund={fund} amount={amount} warnings={warnings} />
+        {/* Action Buttons */}
+        <View style={styles.actions}>
+          <Button
+            mode="contained"
+            onPress={handleConfirmInvestment}
+            style={styles.confirmButton}
+            disabled={createInvestmentMutation.isPending}
+          >
+            Confirm Investment
+          </Button>
 
-      {/* Action Buttons */}
-      <View style={styles.actions}>
-        <Button
-          mode="outlined"
-          onPress={handleCancel}
-          style={styles.cancelButton}
-        >
-          Cancel
-        </Button>
-        <Button mode="outlined" onPress={handleBack} style={styles.backButton}>
-          Back
-        </Button>
-        <Button
-          mode="contained"
-          onPress={handleConfirm}
-          loading={isSubmitting}
-          disabled={isSubmitting}
-          style={styles.confirmButton}
-        >
-          Confirm Investment
-        </Button>
-      </View>
-    </ScrollView>
+          <Button
+            mode="outlined"
+            onPress={handleBack}
+            style={styles.actionButton}
+            disabled={createInvestmentMutation.isPending}
+          >
+            Back
+          </Button>
+
+          <Button
+            mode="text"
+            onPress={handleCancel}
+            style={styles.actionButton}
+            disabled={createInvestmentMutation.isPending}
+          >
+            Cancel
+          </Button>
+        </View>
+      </ScrollView>
+    </View>
   );
 };
 
@@ -161,51 +139,21 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#f5f5f5',
   },
-  contentContainer: {
-    paddingBottom: 32,
-  },
-  loadingContainer: {
+  scrollView: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#f5f5f5',
   },
-  loadingText: {
-    marginTop: 16,
-    color: '#666',
-  },
-  errorContainer: {
-    padding: 16,
-    alignItems: 'center',
-  },
-  errorText: {
-    color: '#f44336',
-    marginBottom: 16,
-  },
-  header: {
-    padding: 16,
-    backgroundColor: '#fff',
-  },
-  title: {
-    fontWeight: '600',
-    marginBottom: 8,
-  },
-  subtitle: {
-    color: '#666',
+  contentContainer: {
+    paddingHorizontal: 16,
   },
   actions: {
-    flexDirection: 'row',
-    padding: 16,
-    gap: 8,
-  },
-  cancelButton: {
-    flex: 1,
-  },
-  backButton: {
-    flex: 1,
+    gap: 12,
+    marginTop: 24,
   },
   confirmButton: {
-    flex: 2,
+    marginBottom: 8,
+  },
+  actionButton: {
+    marginBottom: 8,
   },
 });
 

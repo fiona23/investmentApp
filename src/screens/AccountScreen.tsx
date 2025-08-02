@@ -6,6 +6,14 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types/navigation';
 import { formatCurrency, formatPercentage } from '../utils/formatting';
+import {
+  useInvestmentSummary,
+  useInvestments,
+  useHasInvestments,
+} from '../services/investmentService';
+import LoadingState from '../components/LoadingState';
+import ErrorState from '../components/ErrorState';
+import EmptyState from '../components/EmptyState';
 
 type AccountScreenNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
@@ -16,38 +24,23 @@ const AccountScreen = () => {
   const navigation = useNavigation<AccountScreenNavigationProp>();
   const insets = useSafeAreaInsets();
 
-  // Mock data - in real app this would come from state management
-  const mockInvestmentSummary = {
-    totalInvested: 25000,
-    investmentCount: 3,
-    currentYearTotal: 25000,
-    remainingISALimit: 0,
-    averageReturn: 6.8,
-  };
+  // React Query hooks
+  const {
+    data: investmentSummary,
+    isLoading: isLoadingSummary,
+    error: summaryError,
+    refetch: refetchSummary,
+  } = useInvestmentSummary();
 
-  const mockRecentInvestments = [
-    {
-      id: '1',
-      fundName: 'Cushon Equities Fund',
-      amount: 25000,
-      date: new Date('2024-01-15'),
-      status: 'confirmed' as const,
-    },
-    {
-      id: '2',
-      fundName: 'Cushon Bonds Fund',
-      amount: 5000,
-      date: new Date('2023-12-10'),
-      status: 'confirmed' as const,
-    },
-    {
-      id: '3',
-      fundName: 'Cushon Property Fund',
-      amount: 10000,
-      date: new Date('2023-11-20'),
-      status: 'confirmed' as const,
-    },
-  ];
+  const {
+    data: investments,
+    isLoading: isLoadingInvestments,
+    error: investmentsError,
+    refetch: refetchInvestments,
+  } = useInvestments();
+
+  const { hasInvestments, isLoading: isLoadingHasInvestments } =
+    useHasInvestments();
 
   const handleViewHistory = () => {
     // Navigate to investment history screen
@@ -58,6 +51,71 @@ const AccountScreen = () => {
     navigation.navigate('FundSelection');
   };
 
+  // Loading states
+  if (isLoadingSummary || isLoadingInvestments || isLoadingHasInvestments) {
+    return (
+      <View style={styles.container}>
+        <LoadingState
+          message="Loading your investments..."
+          variant="fullscreen"
+        />
+      </View>
+    );
+  }
+
+  // Error states
+  if (summaryError || investmentsError) {
+    return (
+      <View style={styles.container}>
+        <ErrorState
+          title="Failed to load investments"
+          message="We couldn't load your investment data. Please check your connection and try again."
+          onRetry={() => {
+            refetchSummary();
+            refetchInvestments();
+          }}
+          variant="fullscreen"
+        />
+      </View>
+    );
+  }
+
+  // Empty state - no investments yet
+  if (!hasInvestments) {
+    return (
+      <View style={styles.container}>
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={[
+            styles.contentContainer,
+            { paddingTop: insets.top + 16, paddingBottom: insets.bottom + 16 },
+          ]}
+          showsVerticalScrollIndicator={false}
+        >
+          {/* Header */}
+          <View style={styles.header}>
+            <Text variant="headlineLarge" style={styles.title}>
+              My Account
+            </Text>
+            <Text variant="bodyLarge" style={styles.subtitle}>
+              Welcome to your investment journey
+            </Text>
+          </View>
+
+          {/* Empty State */}
+          <EmptyState
+            title="Start your investment journey"
+            message="You haven't made any investments yet. Start building your portfolio by making your first investment."
+            actionLabel="Start Investing"
+            onAction={handleNewInvestment}
+            variant="card"
+          />
+        </ScrollView>
+      </View>
+    );
+  }
+
+  // Main content - user has investments
   return (
     <View style={styles.container}>
       <ScrollView
@@ -88,35 +146,35 @@ const AccountScreen = () => {
             <View style={styles.summaryRow}>
               <Text variant="bodyMedium">Total Invested:</Text>
               <Text variant="bodyLarge" style={styles.summaryValue}>
-                {formatCurrency(mockInvestmentSummary.totalInvested)}
+                {formatCurrency(investmentSummary?.totalInvested || 0)}
               </Text>
             </View>
 
             <View style={styles.summaryRow}>
               <Text variant="bodyMedium">Investments:</Text>
               <Text variant="bodyLarge" style={styles.summaryValue}>
-                {mockInvestmentSummary.investmentCount}
+                {investmentSummary?.investmentCount || 0}
               </Text>
             </View>
 
             <View style={styles.summaryRow}>
               <Text variant="bodyMedium">This Year:</Text>
               <Text variant="bodyLarge" style={styles.summaryValue}>
-                {formatCurrency(mockInvestmentSummary.currentYearTotal)}
+                {formatCurrency(investmentSummary?.currentYearTotal || 0)}
               </Text>
             </View>
 
             <View style={styles.summaryRow}>
               <Text variant="bodyMedium">ISA Remaining:</Text>
               <Text variant="bodyLarge" style={styles.summaryValue}>
-                {formatCurrency(mockInvestmentSummary.remainingISALimit)}
+                {formatCurrency(investmentSummary?.remainingISALimit || 0)}
               </Text>
             </View>
 
             <View style={styles.summaryRow}>
               <Text variant="bodyMedium">Avg Return:</Text>
               <Text variant="bodyLarge" style={styles.summaryValue}>
-                {formatPercentage(mockInvestmentSummary.averageReturn)}
+                {formatPercentage(investmentSummary?.averageReturn || 0)}
               </Text>
             </View>
           </Card.Content>
@@ -128,7 +186,7 @@ const AccountScreen = () => {
             Recent Investments
           </Text>
 
-          {mockRecentInvestments.map(investment => (
+          {investments?.map(investment => (
             <Card
               key={investment.id}
               style={styles.investmentCard}
