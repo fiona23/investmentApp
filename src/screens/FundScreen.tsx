@@ -1,10 +1,14 @@
 import React from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
-import { Text, Button } from 'react-native-paper';
+import { Text } from 'react-native-paper';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types/navigation';
+import { useFunds } from '../services/investmentService';
+import LoadingState from '../components/LoadingState';
+import ErrorState from '../components/ErrorState';
+import FundCard from '../components/FundCard';
 
 type FundScreenNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
@@ -15,44 +19,74 @@ const FundScreen = () => {
   const navigation = useNavigation<FundScreenNavigationProp>();
   const insets = useSafeAreaInsets();
 
-  const handleBrowseFunds = () => {
-    navigation.navigate('FundSelection');
+  // React Query hooks
+  const { data: funds, isLoading, error, refetch } = useFunds();
+
+  const handleFundPress = (fundId: string) => {
+    navigation.navigate('FundDetails', { fundId });
   };
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <View style={styles.container}>
+        <LoadingState
+          message="Loading available funds..."
+          variant="fullscreen"
+        />
+      </View>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <View style={styles.container}>
+        <ErrorState
+          title="Failed to load funds"
+          message="We couldn't load the available funds. Please check your connection and try again."
+          onRetry={refetch}
+          variant="fullscreen"
+        />
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={[
-          styles.scrollContent,
-          { paddingTop: insets.top + 20, paddingBottom: insets.bottom + 20 },
+          styles.contentContainer,
+          { paddingTop: insets.top + 16, paddingBottom: insets.bottom + 16 },
         ]}
         showsVerticalScrollIndicator={false}
       >
+        {/* Header */}
         <View style={styles.header}>
           <Text variant="headlineLarge" style={styles.title}>
-            Investment Funds
+            Available Funds
           </Text>
           <Text variant="bodyLarge" style={styles.subtitle}>
-            Choose from our range of investment options
+            Choose from our range of investment funds
           </Text>
         </View>
 
-        <View style={styles.content}>
-          <Text variant="titleMedium" style={styles.sectionTitle}>
-            Ready to Invest?
-          </Text>
-          <Text variant="bodyMedium" style={styles.description}>
-            Start building your investment portfolio with our range of funds
-          </Text>
-
-          <Button
-            mode="contained"
-            onPress={handleBrowseFunds}
-            style={styles.browseButton}
-          >
-            Browse All Funds
-          </Button>
+        {/* Funds List */}
+        <View style={styles.fundsList}>
+          {funds && funds.length > 0 ? (
+            funds.map(fund => (
+              <FundCard
+                key={fund.id}
+                fund={fund}
+                onPress={() => handleFundPress(fund.id)}
+              />
+            ))
+          ) : (
+            <Text variant="bodyMedium" style={styles.noFundsText}>
+              No funds available at the moment.
+            </Text>
+          )}
         </View>
       </ScrollView>
     </View>
@@ -62,42 +96,31 @@ const FundScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: '#f5f5f5',
   },
   scrollView: {
     flex: 1,
   },
-  scrollContent: {
-    paddingHorizontal: 20,
+  contentContainer: {
+    paddingHorizontal: 16,
   },
   header: {
-    marginBottom: 30,
+    marginBottom: 24,
   },
   title: {
-    fontWeight: 'bold',
-    color: '#1a1a1a',
+    fontWeight: '600',
     marginBottom: 8,
   },
   subtitle: {
     color: '#666',
   },
-  content: {
-    alignItems: 'center',
-    paddingVertical: 40,
+  fundsList: {
+    gap: 12,
   },
-  sectionTitle: {
-    fontWeight: '600',
-    marginBottom: 12,
+  noFundsText: {
     textAlign: 'center',
-  },
-  description: {
-    textAlign: 'center',
-    color: '#666',
-    marginBottom: 24,
-    lineHeight: 20,
-  },
-  browseButton: {
-    paddingHorizontal: 32,
+    paddingVertical: 20,
+    color: '#888',
   },
 });
 

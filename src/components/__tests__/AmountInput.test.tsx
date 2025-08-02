@@ -1,37 +1,55 @@
 import React from 'react';
-import { render } from '../../test/test-utils';
+import { render } from '@testing-library/react-native';
 import AmountInput from '../AmountInput';
-import { Fund } from '../../types/fund';
-
-const mockFund: Fund = {
-  id: 'test-fund',
-  name: 'Test Fund',
-  description: 'A test fund for testing purposes',
-  category: 'Equities',
-  riskLevel: 'Medium',
-  performance: 5.5,
-  minInvestment: 100,
-  maxInvestment: 20000,
-  isActive: true,
-  createdAt: new Date(),
-  updatedAt: new Date(),
-};
 
 describe('AmountInput', () => {
-  it('renders amount input with currency symbol', () => {
+  const mockOnChangeText = jest.fn();
+
+  it('renders correctly with default props', () => {
     const { getByText } = render(
-      <AmountInput fund={mockFund} value={0} onChange={() => {}} />
+      <AmountInput value="" onChangeText={mockOnChangeText} />
     );
 
-    // The component shows the currency symbol
-    expect(getByText('£')).toBeTruthy();
+    expect(getByText('ISA Annual Limit: £20,000')).toBeTruthy();
   });
 
-  it('shows validation error for invalid amount', () => {
+  it('renders with custom placeholder', () => {
     const { getByText } = render(
-      <AmountInput fund={mockFund} value={50} onChange={() => {}} />
+      <AmountInput
+        value=""
+        onChangeText={mockOnChangeText}
+        placeholder="Custom placeholder"
+      />
     );
 
-    expect(getByText('Minimum investment is £100')).toBeTruthy();
+    expect(getByText('ISA Annual Limit: £20,000')).toBeTruthy();
+  });
+
+  it('displays error message when error prop is provided', () => {
+    const { getByText } = render(
+      <AmountInput
+        value=""
+        onChangeText={mockOnChangeText}
+        error="Invalid amount"
+      />
+    );
+
+    expect(getByText('Invalid amount')).toBeTruthy();
+  });
+
+  it('displays max amount when provided', () => {
+    const { getByText } = render(
+      <AmountInput value="" onChangeText={mockOnChangeText} maxAmount={20000} />
+    );
+
+    expect(getByText('Max Investment: £20,000')).toBeTruthy();
+  });
+
+  it('displays ISA limit when max amount is not provided', () => {
+    const { getByText } = render(
+      <AmountInput value="" onChangeText={mockOnChangeText} />
+    );
+
+    expect(getByText('ISA Annual Limit: £20,000')).toBeTruthy();
   });
 });

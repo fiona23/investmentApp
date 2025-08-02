@@ -23,6 +23,11 @@ const FundCard: React.FC<FundCardProps> = ({
   onPress,
   showDetails = true,
 }) => {
+  // Safety check for undefined fund
+  if (!fund) {
+    return null;
+  }
+
   const handlePress = () => {
     if (onSelect) {
       onSelect(fund);
@@ -60,7 +65,7 @@ const FundCard: React.FC<FundCardProps> = ({
               textStyle={styles.riskText}
               style={styles.riskChip}
             >
-              {formatRiskLevel(fund.riskLevel)}
+              {fund.riskLevel ? formatRiskLevel(fund.riskLevel) : 'N/A'}
             </Chip>
           </View>
 
@@ -68,17 +73,19 @@ const FundCard: React.FC<FundCardProps> = ({
             <>
               {/* Description */}
               <Text variant="bodyMedium" style={styles.description}>
-                {fund.description}
+                {fund.description || 'No description available.'}
               </Text>
 
               {/* Performance and category */}
               <View style={styles.detailsRow}>
                 <View style={styles.detailItem}>
                   <Text variant="labelSmall" style={styles.detailLabel}>
-                    Annual Return
+                    1 Year Return
                   </Text>
                   <Text variant="bodyMedium" style={styles.detailValue}>
-                    {formatPercentage(fund.performance)}
+                    {fund.performance?.oneYear
+                      ? formatPercentage(fund.performance.oneYear)
+                      : 'N/A'}
                   </Text>
                 </View>
                 <View style={styles.detailItem}>
@@ -86,27 +93,29 @@ const FundCard: React.FC<FundCardProps> = ({
                     Category
                   </Text>
                   <Text variant="bodyMedium" style={styles.detailValue}>
-                    {fund.category}
+                    {fund.category || 'N/A'}
                   </Text>
                 </View>
               </View>
 
-              {/* Investment limits */}
+              {/* Fund size and min investment */}
               <View style={styles.detailsRow}>
+                <View style={styles.detailItem}>
+                  <Text variant="labelSmall" style={styles.detailLabel}>
+                    Fund Size
+                  </Text>
+                  <Text variant="bodyMedium" style={styles.detailValue}>
+                    {fund.fundSize ? formatCurrency(fund.fundSize) : 'N/A'}
+                  </Text>
+                </View>
                 <View style={styles.detailItem}>
                   <Text variant="labelSmall" style={styles.detailLabel}>
                     Min Investment
                   </Text>
                   <Text variant="bodyMedium" style={styles.detailValue}>
-                    {formatCurrency(fund.minInvestment)}
-                  </Text>
-                </View>
-                <View style={styles.detailItem}>
-                  <Text variant="labelSmall" style={styles.detailLabel}>
-                    Max Investment
-                  </Text>
-                  <Text variant="bodyMedium" style={styles.detailValue}>
-                    {formatCurrency(fund.maxInvestment)}
+                    {fund.minInvestment
+                      ? formatCurrency(fund.minInvestment)
+                      : 'N/A'}
                   </Text>
                 </View>
               </View>

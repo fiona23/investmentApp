@@ -2,23 +2,19 @@ import { Fund } from '../types/fund';
 import { InvestmentValidation } from '../types/investment';
 import { APP_CONSTANTS } from './constants';
 
-export function validateInvestmentAmount(
+export const validateInvestmentAmount = (
   amount: number,
   fund: Fund
-): InvestmentValidation {
+): InvestmentValidation => {
   const errors: string[] = [];
   const warnings: string[] = [];
 
   if (amount <= 0) {
-    errors.push('Investment amount must be greater than £0');
+    errors.push('Investment amount must be greater than 0');
   }
 
   if (amount < fund.minInvestment) {
     errors.push(`Minimum investment is £${fund.minInvestment}`);
-  }
-
-  if (amount > fund.maxInvestment) {
-    errors.push(`Maximum investment is £${fund.maxInvestment}`);
   }
 
   if (amount > APP_CONSTANTS.ISA_ANNUAL_LIMIT) {
@@ -32,7 +28,7 @@ export function validateInvestmentAmount(
     errors,
     warnings,
   };
-}
+};
 
 export function validateInvestmentForm(
   fundId: string,

@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, FlatList, Alert } from 'react-native';
-import { Text, Searchbar, Chip } from 'react-native-paper';
+import { View, StyleSheet, FlatList, Alert, ScrollView } from 'react-native';
+import { Text, Searchbar, Chip, IconButton } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { RootStackParamList } from '../types/navigation';
 import { Fund } from '../types/fund';
 import FundCard from '../components/FundCard';
-import { FUND_DATA } from '../utils/constants';
+import { useFunds } from '../services/investmentService';
 
 type FundSelectionScreenNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
@@ -15,24 +16,29 @@ type FundSelectionScreenNavigationProp = NativeStackNavigationProp<
 
 const FundSelectionScreen: React.FC = () => {
   const navigation = useNavigation<FundSelectionScreenNavigationProp>();
+  const insets = useSafeAreaInsets();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedFund, setSelectedFund] = useState<Fund | null>(null);
 
+  // React Query hooks
+  const { data: funds } = useFunds();
+
   const categories = ['All', 'Equities', 'Bonds', 'Property', 'Multi-Asset'];
 
-  const filteredFunds = FUND_DATA.filter(fund => {
-    const matchesSearch =
-      fund.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      fund.description.toLowerCase().includes(searchQuery.toLowerCase());
+  const filteredFunds =
+    funds?.filter(fund => {
+      const matchesSearch =
+        fund.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        fund.description.toLowerCase().includes(searchQuery.toLowerCase());
 
-    const matchesCategory =
-      !selectedCategory ||
-      selectedCategory === 'All' ||
-      fund.category === selectedCategory;
+      const matchesCategory =
+        !selectedCategory ||
+        selectedCategory === 'All' ||
+        fund.category === selectedCategory;
 
-    return matchesSearch && matchesCategory;
-  });
+      return matchesSearch && matchesCategory;
+    }) || [];
 
   const handleFundSelect = (fund: Fund) => {
     setSelectedFund(fund);
@@ -45,6 +51,10 @@ const FundSelectionScreen: React.FC = () => {
     }
 
     navigation.navigate('InvestmentAmount', { fundId: selectedFund.id });
+  };
+
+  const handleBack = () => {
+    navigation.goBack();
   };
 
   const renderFundItem = ({ item }: { item: Fund }) => (
@@ -70,50 +80,70 @@ const FundSelectionScreen: React.FC = () => {
   );
 
   return (
-    <View style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <Text variant="headlineMedium" style={styles.title}>
-          Select a Fund
-        </Text>
-        <Text variant="bodyLarge" style={styles.subtitle}>
-          Choose from our range of investment options
-        </Text>
+    <View style={[styles.container, { paddingTop: insets.top }]}>
+      {/* Header with Back Button */}
+      <View style={[styles.headerContainer]}>
+        <IconButton
+          icon="chevron-left"
+          size={32}
+          onPress={handleBack}
+          style={styles.headerBackButton}
+          iconColor="#007AFF"
+        />
       </View>
 
-      {/* Search Bar */}
-      <Searchbar
-        placeholder="Search funds..."
-        onChangeText={setSearchQuery}
-        value={searchQuery}
-        style={styles.searchBar}
-      />
-
-      {/* Category Filters */}
-      <View style={styles.categoryContainer}>
-        <Text variant="titleSmall" style={styles.categoryTitle}>
-          Filter by Category:
-        </Text>
-        <View style={styles.categoryChips}>
-          {categories.map(renderCategoryChip)}
-        </View>
-      </View>
-
-      {/* Fund List */}
-      <FlatList
-        data={filteredFunds}
-        renderItem={renderFundItem}
-        keyExtractor={item => item.id}
-        contentContainerStyle={styles.listContainer}
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={[
+          styles.contentContainer,
+          { paddingBottom: insets.bottom + 16 },
+        ]}
         showsVerticalScrollIndicator={false}
-        ListEmptyComponent={
-          <View style={styles.emptyContainer}>
-            <Text variant="bodyLarge" style={styles.emptyText}>
-              No funds found matching your criteria
-            </Text>
+      >
+        {/* Header */}
+        <View style={styles.header}>
+          <Text variant="headlineLarge" style={styles.title}>
+            Select a Fund
+          </Text>
+          <Text variant="bodyLarge" style={styles.subtitle}>
+            Choose from our range of investment options
+          </Text>
+        </View>
+
+        {/* Search Bar */}
+        <Searchbar
+          placeholder="Search funds..."
+          onChangeText={setSearchQuery}
+          value={searchQuery}
+          style={styles.searchBar}
+        />
+
+        {/* Category Filters */}
+        <View style={styles.categoryContainer}>
+          <Text variant="titleSmall" style={styles.categoryTitle}>
+            Filter by Category:
+          </Text>
+          <View style={styles.categoryChips}>
+            {categories.map(renderCategoryChip)}
           </View>
-        }
-      />
+        </View>
+
+        {/* Fund List */}
+        <FlatList
+          data={filteredFunds}
+          renderItem={renderFundItem}
+          keyExtractor={item => item.id}
+          contentContainerStyle={styles.listContainer}
+          showsVerticalScrollIndicator={false}
+          ListEmptyComponent={
+            <View style={styles.emptyContainer}>
+              <Text variant="bodyLarge" style={styles.emptyText}>
+                No funds found matching your criteria
+              </Text>
+            </View>
+          }
+        />
+      </ScrollView>
 
       {/* Continue Button */}
       <View style={styles.footer}>
@@ -140,24 +170,37 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#f5f5f5',
   },
+  headerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    backgroundColor: 'transparent',
+    paddingBottom: 0,
+  },
+  headerBackButton: {
+    marginRight: 0,
+    marginVertical: -6,
+  },
   header: {
-    padding: 16,
+    paddingHorizontal: 16,
+    paddingBottom: 12,
     backgroundColor: '#fff',
   },
   title: {
     fontWeight: '600',
-    marginBottom: 8,
+    marginBottom: 4,
   },
   subtitle: {
     color: '#666',
+    marginBottom: 8,
   },
   searchBar: {
-    margin: 16,
+    margin: 12,
     elevation: 2,
   },
   categoryContainer: {
     paddingHorizontal: 16,
-    paddingBottom: 16,
+    paddingBottom: 12,
     backgroundColor: '#fff',
   },
   categoryTitle: {
@@ -207,6 +250,12 @@ const styles = StyleSheet.create({
   },
   continueButtonDisabled: {
     color: '#ccc',
+  },
+  scrollView: {
+    flex: 1,
+  },
+  contentContainer: {
+    paddingBottom: 100, // Adjust based on footer height
   },
 });
 

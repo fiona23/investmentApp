@@ -1,19 +1,17 @@
 export type RootStackParamList = {
-  Main: undefined;
+  Main: { screen: keyof TabParamList } | undefined;
   FundSelection: undefined;
   InvestmentAmount: { fundId: string };
   InvestmentSummary: { fundId: string; amount: number };
-  InvestmentHistory: undefined;
+  FundDetails: { fundId: string };
 };
 
 export type TabParamList = {
   Account: undefined;
-  Funds: undefined;
+  Fund: undefined;
   Profile: undefined;
 };
 
 export type RootTabParamList = {
-  Account: undefined;
-  Funds: undefined;
-  Profile: undefined;
+  Main: TabParamList;
 };

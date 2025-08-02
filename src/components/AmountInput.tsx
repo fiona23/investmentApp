@@ -7,35 +7,32 @@ import { formatCurrency } from '../utils/formatting';
 import { APP_CONSTANTS } from '../utils/constants';
 
 interface AmountInputProps {
-  fund: Fund;
-  value: number;
-  onChange: (amount: number) => void;
-  onValidationChange?: (isValid: boolean, errors: string[]) => void;
+  value: string;
+  onChangeText: (value: string) => void;
+  error?: string;
+  placeholder?: string;
+  maxAmount?: number;
+  fund?: Fund;
   disabled?: boolean;
 }
 
 const AmountInput: React.FC<AmountInputProps> = ({
-  fund,
   value,
-  onChange,
-  onValidationChange,
+  onChangeText,
+  error,
+  placeholder = 'Enter amount',
+  maxAmount,
+  fund,
   disabled = false,
 }) => {
-  const [inputValue, setInputValue] = useState(value.toString());
-  const [errors, setErrors] = useState<string[]>([]);
+  const [localError, setLocalError] = useState<string>('');
 
   useEffect(() => {
-    setInputValue(value.toString());
-  }, [value]);
-
-  useEffect(() => {
-    const validation = validateInvestmentAmount(value, fund);
-    setErrors(validation.errors);
-
-    if (onValidationChange) {
-      onValidationChange(validation.isValid, validation.errors);
+    // Clear local error when external error is provided
+    if (error) {
+      setLocalError('');
     }
-  }, [value, fund]);
+  }, [error]);
 
   const handleTextChange = (text: string) => {
     // Remove non-numeric characters except decimal point
@@ -46,36 +43,52 @@ const AmountInput: React.FC<AmountInputProps> = ({
     const formattedText =
       parts.length > 2 ? parts[0] + '.' + parts.slice(1).join('') : cleanText;
 
-    setInputValue(formattedText);
+    onChangeText(formattedText);
 
+    // Real-time validation
     const numericValue = parseFloat(formattedText) || 0;
-    onChange(numericValue);
+    if (numericValue > 0 && fund) {
+      const validation = validateInvestmentAmount(numericValue, fund);
+      if (!validation.isValid) {
+        setLocalError(validation.errors[0]);
+      } else if (maxAmount && numericValue > maxAmount) {
+        setLocalError(`Amount exceeds maximum of ${formatCurrency(maxAmount)}`);
+      } else {
+        setLocalError('');
+      }
+    } else {
+      setLocalError('');
+    }
   };
+
+  const displayError = error || localError;
 
   return (
     <View style={styles.container}>
       <TextInput
         label="Investment Amount"
-        value={inputValue}
+        value={value}
         onChangeText={handleTextChange}
         keyboardType="numeric"
         disabled={disabled}
         style={styles.input}
         mode="outlined"
         left={<TextInput.Affix text="£" />}
-        error={errors.length > 0}
-        placeholder="0"
+        error={!!displayError}
+        placeholder={placeholder}
       />
 
-      {errors.length > 0 && (
-        <HelperText type="error" visible={errors.length > 0}>
-          {errors[0]}
+      {displayError && (
+        <HelperText type="error" visible={!!displayError}>
+          {displayError}
         </HelperText>
       )}
 
       <View style={styles.limitInfo}>
         <Text variant="bodySmall" style={styles.limitText}>
-          ISA Annual Limit: {formatCurrency(APP_CONSTANTS.ISA_ANNUAL_LIMIT)}
+          {maxAmount
+            ? `Max Investment: ${formatCurrency(maxAmount)}`
+            : `ISA Annual Limit: ${formatCurrency(APP_CONSTANTS.ISA_ANNUAL_LIMIT)}`}
         </Text>
       </View>
     </View>
@@ -84,7 +97,7 @@ const AmountInput: React.FC<AmountInputProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    padding: 16,
+    marginBottom: 16,
   },
   input: {
     marginBottom: 8,

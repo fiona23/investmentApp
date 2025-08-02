@@ -1,20 +1,20 @@
 import React from 'react';
-import { View, StyleSheet, ScrollView } from 'react-native';
-import { Button } from 'react-native-paper';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
+import { View, ScrollView, StyleSheet } from 'react-native';
+import { Text, Button, IconButton } from 'react-native-paper';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RouteProp } from '@react-navigation/native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { RootStackParamList } from '../types/navigation';
 import InvestmentSummary from '../components/InvestmentSummary';
-import { useCreateInvestment } from '../services/investmentService';
 import LoadingState from '../components/LoadingState';
 import ErrorState from '../components/ErrorState';
+import { useCreateInvestment } from '../services/investmentService';
 
 type InvestmentSummaryScreenNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
   'InvestmentSummary'
 >;
-
 type InvestmentSummaryScreenRouteProp = RouteProp<
   RootStackParamList,
   'InvestmentSummary'
@@ -24,7 +24,6 @@ const InvestmentSummaryScreen = () => {
   const navigation = useNavigation<InvestmentSummaryScreenNavigationProp>();
   const route = useRoute<InvestmentSummaryScreenRouteProp>();
   const insets = useSafeAreaInsets();
-
   const { fundId, amount } = route.params;
 
   // React Query mutation for creating investment
@@ -85,15 +84,35 @@ const InvestmentSummaryScreen = () => {
   }
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { paddingTop: insets.top }]}>
+      {/* Header with Back Button */}
+      <View style={[styles.headerContainer]}>
+        <IconButton
+          icon="chevron-left"
+          size={32}
+          onPress={handleBack}
+          style={styles.headerBackButton}
+          iconColor="#007AFF"
+        />
+      </View>
+
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={[
           styles.contentContainer,
-          { paddingTop: insets.top + 16, paddingBottom: insets.bottom + 16 },
+          { paddingBottom: insets.bottom + 16 },
         ]}
         showsVerticalScrollIndicator={false}
       >
+        {/* Header */}
+        <View style={styles.header}>
+          <Text variant="headlineLarge" style={styles.title}>
+            Confirm Investment
+          </Text>
+          <Text variant="bodyLarge" style={styles.subtitle}>
+            Review your investment details
+          </Text>
+        </View>
         <InvestmentSummary
           fundId={fundId}
           amount={amount}
@@ -144,6 +163,29 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     paddingHorizontal: 16,
+  },
+  headerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    backgroundColor: 'transparent',
+    paddingBottom: 0,
+  },
+  headerBackButton: {
+    marginRight: 0,
+    marginVertical: -6,
+  },
+  header: {
+    marginBottom: 16,
+    paddingHorizontal: 16,
+  },
+  title: {
+    fontWeight: 'bold',
+    marginBottom: 4,
+  },
+  subtitle: {
+    color: '#666',
+    marginBottom: 12,
   },
   actions: {
     gap: 12,

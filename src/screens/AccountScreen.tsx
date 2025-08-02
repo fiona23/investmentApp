@@ -47,8 +47,12 @@ const AccountScreen = () => {
     // navigation.navigate('InvestmentHistory');
   };
 
+  const handleBrowseFunds = () => {
+    navigation.navigate('Main', { screen: 'Fund' });
+  };
+
   const handleNewInvestment = () => {
-    navigation.navigate('FundSelection');
+    navigation.navigate('Main', { screen: 'Fund' });
   };
 
   // Loading states
@@ -106,8 +110,8 @@ const AccountScreen = () => {
           <EmptyState
             title="Start your investment journey"
             message="You haven't made any investments yet. Start building your portfolio by making your first investment."
-            actionLabel="Start Investing"
-            onAction={handleNewInvestment}
+            actionLabel="Browse Funds"
+            onAction={handleBrowseFunds}
             variant="card"
           />
         </ScrollView>
