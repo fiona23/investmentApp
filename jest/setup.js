@@ -132,6 +132,58 @@ jest.mock('react-native-paper', () => {
   const ActivityIndicator = ({ ...props }) =>
     React.createElement(View, { ...props }, 'Loading...');
 
+  const List = {
+    Item: ({ title, description, left, right, onPress, ...props }) =>
+      React.createElement(
+        TouchableOpacity,
+        {
+          style: { padding: 16, flexDirection: 'row', alignItems: 'center' },
+          onPress,
+          ...props,
+        },
+        left && left({}),
+        React.createElement(View, { style: { flex: 1, marginLeft: 16 } }, [
+          React.createElement(
+            RNText,
+            { key: 'title', style: { fontWeight: '500' } },
+            title
+          ),
+          description &&
+            React.createElement(
+              RNText,
+              { key: 'desc', style: { color: '#666' } },
+              description
+            ),
+        ]),
+        right && right({})
+      ),
+    Icon: ({ icon, ...props }) =>
+      React.createElement(RNText, { ...props }, icon),
+  };
+
+  const Avatar = {
+    Text: ({ size, label, ...props }) =>
+      React.createElement(
+        View,
+        {
+          style: {
+            width: size,
+            height: size,
+            borderRadius: size / 2,
+            backgroundColor: '#2196F3',
+            justifyContent: 'center',
+            alignItems: 'center',
+          },
+          ...props,
+        },
+        React.createElement(
+          RNText,
+          { style: { color: 'white', fontWeight: '600' } },
+          label
+        )
+      ),
+  };
+
   return {
     PaperProvider,
     Text,
@@ -144,5 +196,7 @@ jest.mock('react-native-paper', () => {
     Divider,
     Searchbar,
     ActivityIndicator,
+    List,
+    Avatar,
   };
 });
