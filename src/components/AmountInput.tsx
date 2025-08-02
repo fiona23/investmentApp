@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet } from 'react-native';
-import { TextInput, Text, HelperText, Button } from 'react-native-paper';
+import { TextInput, Text, HelperText } from 'react-native-paper';
 import { Fund } from '../types/fund';
 import { validateInvestmentAmount } from '../utils/validation';
 import { formatCurrency } from '../utils/formatting';
@@ -35,7 +35,7 @@ const AmountInput: React.FC<AmountInputProps> = ({
     if (onValidationChange) {
       onValidationChange(validation.isValid, validation.errors);
     }
-  }, [value, fund, onValidationChange]);
+  }, [value, fund]);
 
   const handleTextChange = (text: string) => {
     // Remove non-numeric characters except decimal point
@@ -51,12 +51,6 @@ const AmountInput: React.FC<AmountInputProps> = ({
     const numericValue = parseFloat(formattedText) || 0;
     onChange(numericValue);
   };
-
-  const handleQuickAmount = (amount: number) => {
-    onChange(amount);
-  };
-
-  const quickAmounts = [100, 500, 1000, 5000];
 
   return (
     <View style={styles.container}>
@@ -79,25 +73,6 @@ const AmountInput: React.FC<AmountInputProps> = ({
         </HelperText>
       )}
 
-      <View style={styles.quickAmountsContainer}>
-        <Text variant="labelMedium" style={styles.quickAmountsLabel}>
-          Quick amounts:
-        </Text>
-        <View style={styles.quickAmountsRow}>
-          {quickAmounts.map(amount => (
-            <Button
-              key={amount}
-              mode="outlined"
-              onPress={() => handleQuickAmount(amount)}
-              style={styles.quickAmountButton}
-              disabled={disabled}
-            >
-              {formatCurrency(amount)}
-            </Button>
-          ))}
-        </View>
-      </View>
-
       <View style={styles.limitInfo}>
         <Text variant="bodySmall" style={styles.limitText}>
           ISA Annual Limit: {formatCurrency(APP_CONSTANTS.ISA_ANNUAL_LIMIT)}
@@ -112,23 +87,6 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   input: {
-    marginBottom: 8,
-  },
-  quickAmountsContainer: {
-    marginTop: 16,
-    marginBottom: 16,
-  },
-  quickAmountsLabel: {
-    marginBottom: 8,
-    color: '#666',
-  },
-  quickAmountsRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-  },
-  quickAmountButton: {
-    marginRight: 8,
     marginBottom: 8,
   },
   limitInfo: {

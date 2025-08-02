@@ -34,12 +34,4 @@ describe('AmountInput', () => {
 
     expect(getByText('Minimum investment is £100')).toBeTruthy();
   });
-
-  it('shows quick amounts label', () => {
-    const { getByText } = render(
-      <AmountInput fund={mockFund} value={0} onChange={() => {}} />
-    );
-
-    expect(getByText('Quick amounts:')).toBeTruthy();
-  });
 });

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { View, StyleSheet, ScrollView, Alert } from 'react-native';
 import {
   Text,
@@ -57,13 +57,13 @@ const InvestmentAmountScreen: React.FC = () => {
     setAmount(newAmount);
   };
 
-  const handleValidationChange = (
-    valid: boolean,
-    validationErrors: string[]
-  ) => {
-    setIsValid(valid);
-    setErrors(validationErrors);
-  };
+  const handleValidationChange = useCallback(
+    (valid: boolean, validationErrors: string[]) => {
+      setIsValid(valid);
+      setErrors(validationErrors);
+    },
+    []
+  );
 
   const handleContinue = () => {
     if (!isValid) {
