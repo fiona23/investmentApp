@@ -9,7 +9,7 @@ import { RootStackParamList } from '../types/navigation';
 import InvestmentSummary from '../components/InvestmentSummary';
 import LoadingState from '../components/LoadingState';
 import ErrorState from '../components/ErrorState';
-import { useCreateInvestment } from '../services/investmentService';
+import { useCreateInvestment, useFunds } from '../services/investmentService';
 
 type InvestmentSummaryScreenNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
@@ -26,14 +26,19 @@ const InvestmentSummaryScreen = () => {
   const insets = useSafeAreaInsets();
   const { fundId, amount } = route.params;
 
-  // React Query mutation for creating investment
+  // React Query hooks
   const createInvestmentMutation = useCreateInvestment();
+  const { data: funds } = useFunds();
+
+  // Get fund name
+  const fund = funds?.find(f => f.id === fundId);
+  const fundName = fund?.name || 'Unknown Fund';
 
   const handleConfirmInvestment = async () => {
     try {
       const investmentData = {
         fundId,
-        fundName: 'Cushon Equities Fund', // This would come from fund data
+        fundName,
         amount,
         createdAt: new Date(),
         updatedAt: new Date(),

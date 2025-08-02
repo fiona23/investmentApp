@@ -2,7 +2,7 @@ import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Card, Text, Chip } from 'react-native-paper';
 import { formatCurrency } from '../utils/formatting';
-import { FUND_DATA } from '../utils/constants';
+import { useFunds } from '../services/investmentService';
 
 interface InvestmentSummaryProps {
   fundId: string;
@@ -15,10 +15,25 @@ const InvestmentSummary: React.FC<InvestmentSummaryProps> = ({
   amount,
   isaRemaining,
 }) => {
-  // Find fund data
-  const fund = FUND_DATA.find(f => f.id === fundId);
+  // Get fund data from React Query
+  const { data: funds, isLoading, error } = useFunds();
 
-  if (!fund) {
+  // Find fund data
+  const fund = funds?.find(f => f.id === fundId);
+
+  if (isLoading) {
+    return (
+      <Card style={styles.card} mode="outlined">
+        <Card.Content>
+          <Text variant="titleLarge" style={styles.loadingTitle}>
+            Loading fund details...
+          </Text>
+        </Card.Content>
+      </Card>
+    );
+  }
+
+  if (error || !fund) {
     return (
       <Card style={styles.card} mode="outlined">
         <Card.Content>
@@ -125,6 +140,9 @@ const styles = StyleSheet.create({
   },
   errorTitle: {
     color: '#f44336',
+    textAlign: 'center',
+  },
+  loadingTitle: {
     textAlign: 'center',
   },
   section: {
