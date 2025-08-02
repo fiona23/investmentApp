@@ -2,6 +2,7 @@ import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Text, Button } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
+import { colors, spacing, borderRadius, shadows } from '../utils/theme';
 
 interface EmptyStateProps {
   title?: string;
@@ -28,7 +29,11 @@ const EmptyState: React.FC<EmptyStateProps> = ({
     <View style={containerStyle}>
       <View style={styles.content}>
         <View style={styles.iconContainer}>
-          <Ionicons name="trending-up-outline" size={64} color="#007AFF" />
+          <Ionicons
+            name="pie-chart-outline"
+            size={80}
+            color={colors.primary[600]}
+          />
         </View>
 
         <Text variant="headlineSmall" style={styles.title}>
@@ -45,6 +50,8 @@ const EmptyState: React.FC<EmptyStateProps> = ({
             onPress={onAction}
             style={styles.actionButton}
             icon="plus"
+            buttonColor={colors.primary[600]}
+            textColor={colors.neutral[50]}
           >
             {actionLabel}
           </Button>
@@ -58,47 +65,42 @@ const styles = StyleSheet.create({
   container: {
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 20,
+    padding: spacing.lg,
   },
   fullscreen: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: colors.background.primary,
   },
   card: {
-    padding: 32,
-    backgroundColor: '#ffffff',
-    borderRadius: 8,
-    margin: 16,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 3.84,
-    elevation: 5,
+    padding: spacing.xl,
+    backgroundColor: colors.surface.primary,
+    borderRadius: borderRadius.lg,
+    margin: spacing.md,
+    ...shadows.md,
   },
   content: {
     alignItems: 'center',
-    maxWidth: 280,
+    maxWidth: 320,
   },
   iconContainer: {
-    marginBottom: 24,
+    marginBottom: spacing.xl,
   },
   title: {
-    fontWeight: '600',
+    fontWeight: '700',
     textAlign: 'center',
-    marginBottom: 12,
-    color: '#1a1a1a',
+    marginBottom: spacing.sm,
+    color: colors.neutral[900],
   },
   message: {
     textAlign: 'center',
-    color: '#666',
-    marginBottom: 32,
-    lineHeight: 20,
+    color: colors.neutral[600],
+    marginBottom: spacing.xl,
+    lineHeight: 22,
+    fontWeight: '500',
   },
   actionButton: {
-    paddingHorizontal: 24,
+    paddingHorizontal: spacing.lg,
+    borderRadius: borderRadius.md,
   },
 });
 

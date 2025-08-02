@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { View, ScrollView, StyleSheet } from 'react-native';
-import { Text, Card, Chip, IconButton } from 'react-native-paper';
+import { Text, Card, IconButton } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -9,6 +9,7 @@ import { useInvestmentStore } from '../store/investmentStore';
 import { formatCurrency, formatDate, formatStatus } from '../utils/formatting';
 import LoadingState from '../components/LoadingState';
 import ErrorState from '../components/ErrorState';
+import { colors } from '../utils/theme';
 
 type TransactionHistoryScreenNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
@@ -27,6 +28,19 @@ const TransactionHistoryScreen = () => {
 
   const handleBack = () => {
     navigation.goBack();
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status.toLowerCase()) {
+      case 'pending':
+        return colors.secondary[600];
+      case 'completed':
+        return colors.success[600];
+      case 'failed':
+        return colors.error[600];
+      default:
+        return colors.neutral[600];
+    }
   };
 
   if (isLoading) {
@@ -59,7 +73,7 @@ const TransactionHistoryScreen = () => {
           size={32}
           onPress={handleBack}
           style={styles.headerBackButton}
-          iconColor="#007AFF"
+          iconColor={colors.primary[600]}
         />
       </View>
 
@@ -95,45 +109,68 @@ const TransactionHistoryScreen = () => {
             </Card.Content>
           </Card>
         ) : (
-          investments.map(investment => (
-            <Card
-              key={investment.id}
-              style={styles.transactionCard}
-              mode="outlined"
-            >
-              <Card.Content>
-                <View style={styles.transactionHeader}>
-                  <Text variant="titleMedium" style={styles.fundName}>
-                    {investment.fundName}
-                  </Text>
-                  <Chip mode="outlined" style={styles.statusChip}>
-                    {formatStatus(investment.status)}
-                  </Chip>
-                </View>
+          investments
+            .sort(
+              (a, b) =>
+                new Date(b.createdAt).getTime() -
+                new Date(a.createdAt).getTime()
+            )
+            .map(investment => (
+              <Card
+                key={investment.id}
+                style={styles.transactionCard}
+                mode="outlined"
+              >
+                <Card.Content>
+                  <View style={styles.transactionHeader}>
+                    <Text variant="titleMedium" style={styles.fundName}>
+                      {investment.fundName}
+                    </Text>
+                    <View
+                      style={[
+                        styles.statusBadge,
+                        {
+                          backgroundColor:
+                            getStatusColor(investment.status) + '20',
+                        },
+                      ]}
+                    >
+                      <View
+                        style={[
+                          styles.statusDot,
+                          {
+                            backgroundColor: getStatusColor(investment.status),
+                          },
+                        ]}
+                      />
+                      <Text
+                        style={[
+                          styles.statusText,
+                          { color: getStatusColor(investment.status) },
+                        ]}
+                      >
+                        {formatStatus(investment.status)}
+                      </Text>
+                    </View>
+                  </View>
 
-                <View style={styles.transactionDetails}>
-                  <View style={styles.detailRow}>
-                    <Text variant="bodyMedium">Amount:</Text>
-                    <Text variant="bodyLarge" style={styles.amount}>
-                      {formatCurrency(investment.amount)}
-                    </Text>
+                  <View style={styles.transactionDetails}>
+                    <View style={styles.detailRow}>
+                      <Text variant="bodyMedium">Amount:</Text>
+                      <Text variant="bodyLarge" style={styles.amount}>
+                        {formatCurrency(investment.amount)}
+                      </Text>
+                    </View>
+                    <View style={styles.detailRow}>
+                      <Text variant="bodyMedium">Date:</Text>
+                      <Text variant="bodyMedium">
+                        {formatDate(investment.createdAt)}
+                      </Text>
+                    </View>
                   </View>
-                  <View style={styles.detailRow}>
-                    <Text variant="bodyMedium">Date:</Text>
-                    <Text variant="bodyMedium">
-                      {formatDate(investment.createdAt)}
-                    </Text>
-                  </View>
-                  <View style={styles.detailRow}>
-                    <Text variant="bodyMedium">Status:</Text>
-                    <Text variant="bodyMedium" style={styles.statusText}>
-                      {formatStatus(investment.status)}
-                    </Text>
-                  </View>
-                </View>
-              </Card.Content>
-            </Card>
-          ))
+                </Card.Content>
+              </Card>
+            ))
         )}
       </ScrollView>
     </View>
@@ -199,8 +236,20 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#1A1A1A',
   },
-  statusChip: {
+  statusBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
     marginLeft: 8,
+  },
+  statusDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: colors.neutral[50],
+    marginRight: 6,
   },
   transactionDetails: {
     gap: 8,
@@ -216,6 +265,8 @@ const styles = StyleSheet.create({
   },
   statusText: {
     textTransform: 'capitalize',
+    fontWeight: '600',
+    fontSize: 11,
   },
 });
 

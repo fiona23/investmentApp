@@ -85,10 +85,10 @@ const ProfileScreen = () => {
         {/* Header */}
         <View style={styles.header}>
           <Text variant="headlineLarge" style={styles.title}>
-            Profile
+            My Profile
           </Text>
           <Text variant="bodyLarge" style={styles.subtitle}>
-            Account Settings & Information
+            Profile Settings & Information
           </Text>
         </View>
 
@@ -158,7 +158,6 @@ const ProfileScreen = () => {
 
             <List.Item
               title="Edit Profile"
-              description="Update your personal information"
               left={props => <List.Icon {...props} icon="account-edit" />}
               right={props => <List.Icon {...props} icon="chevron-right" />}
               onPress={handleEditProfile}
@@ -168,7 +167,6 @@ const ProfileScreen = () => {
 
             <List.Item
               title="View Documents"
-              description="Access your investment documents"
               left={props => <List.Icon {...props} icon="file-document" />}
               right={props => <List.Icon {...props} icon="chevron-right" />}
               onPress={handleViewDocuments}
@@ -178,7 +176,6 @@ const ProfileScreen = () => {
 
             <List.Item
               title="Contact Support"
-              description="Get help with your account"
               left={props => <List.Icon {...props} icon="help-circle" />}
               right={props => <List.Icon {...props} icon="chevron-right" />}
               onPress={handleContactSupport}
@@ -188,12 +185,13 @@ const ProfileScreen = () => {
 
             <List.Item
               title="Clear Storage"
-              description="Clear all investment data and reset app"
               left={props => <List.Icon {...props} icon="delete" />}
               right={props => <List.Icon {...props} icon="chevron-right" />}
               onPress={handleClearStorage}
               titleStyle={styles.clearStorageTitle}
             />
+
+            <Divider />
           </Card.Content>
         </Card>
 

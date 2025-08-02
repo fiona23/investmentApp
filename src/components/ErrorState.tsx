@@ -2,6 +2,7 @@ import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Text, Button } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
+import { colors, spacing, borderRadius, shadows } from '../utils/theme';
 
 interface ErrorStateProps {
   title?: string;
@@ -28,7 +29,11 @@ const ErrorState: React.FC<ErrorStateProps> = ({
     <View style={containerStyle}>
       <View style={styles.content}>
         <View style={styles.iconContainer}>
-          <Ionicons name="alert-circle-outline" size={48} color="#FF3B30" />
+          <Ionicons
+            name="warning-outline"
+            size={64}
+            color={colors.error[600]}
+          />
         </View>
 
         <Text variant="titleLarge" style={styles.title}>
@@ -45,6 +50,8 @@ const ErrorState: React.FC<ErrorStateProps> = ({
             onPress={onRetry}
             style={styles.retryButton}
             icon="refresh"
+            buttonColor={colors.error[600]}
+            textColor={colors.neutral[50]}
           >
             Try Again
           </Button>
@@ -58,47 +65,42 @@ const styles = StyleSheet.create({
   container: {
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 20,
+    padding: spacing.lg,
   },
   fullscreen: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: colors.background.primary,
   },
   card: {
-    padding: 24,
-    backgroundColor: '#ffffff',
-    borderRadius: 8,
-    margin: 16,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 3.84,
-    elevation: 5,
+    padding: spacing.xl,
+    backgroundColor: colors.surface.primary,
+    borderRadius: borderRadius.lg,
+    margin: spacing.md,
+    ...shadows.md,
   },
   content: {
     alignItems: 'center',
-    maxWidth: 300,
+    maxWidth: 320,
   },
   iconContainer: {
-    marginBottom: 16,
+    marginBottom: spacing.lg,
   },
   title: {
-    fontWeight: '600',
+    fontWeight: '700',
     textAlign: 'center',
-    marginBottom: 8,
-    color: '#1a1a1a',
+    marginBottom: spacing.sm,
+    color: colors.neutral[900],
   },
   message: {
     textAlign: 'center',
-    color: '#666',
-    marginBottom: 24,
-    lineHeight: 20,
+    color: colors.neutral[600],
+    marginBottom: spacing.xl,
+    lineHeight: 22,
+    fontWeight: '500',
   },
   retryButton: {
-    marginTop: 8,
+    marginTop: spacing.sm,
+    borderRadius: borderRadius.md,
   },
 });
 

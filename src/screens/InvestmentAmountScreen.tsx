@@ -24,6 +24,7 @@ import AmountInput from '../components/AmountInput';
 import { validateInvestmentAmount } from '../utils/validation';
 import { formatPercentage, formatCurrency } from '../utils/formatting';
 import { useInvestmentStore } from '../store/investmentStore';
+import { colors } from '../utils/theme';
 
 type InvestmentAmountScreenNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
@@ -158,7 +159,7 @@ const InvestmentAmountScreen = () => {
           size={32}
           onPress={handleBack}
           style={styles.headerBackButton}
-          iconColor="#007AFF"
+          iconColor={colors.primary[600]}
         />
       </View>
 
@@ -342,12 +343,12 @@ const styles = StyleSheet.create({
   },
   progressBarBackground: {
     height: '100%',
-    backgroundColor: '#e0e0e0',
+    backgroundColor: colors.neutral[200],
     borderRadius: 4,
   },
   progressBarFill: {
     height: '100%',
-    backgroundColor: '#2196F3',
+    backgroundColor: colors.primary[600],
     borderRadius: 4,
   },
   fundSummary: {

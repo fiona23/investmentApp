@@ -95,7 +95,7 @@ describe('AccountScreen', () => {
     });
 
     expect(screen.getByText('Investment Summary')).toBeTruthy();
-    expect(screen.getByText('Total Invested:')).toBeTruthy();
+    expect(screen.getByText('Total Invested')).toBeTruthy();
     expect(screen.getByText('Recent Transactions')).toBeTruthy();
     expect(screen.getByText('Cushon Equities Fund')).toBeTruthy();
   });
@@ -123,7 +123,7 @@ describe('AccountScreen', () => {
       await new Promise(resolve => setTimeout(resolve, 0));
     });
 
-    expect(screen.getByText('Loading your account...')).toBeTruthy();
+    expect(screen.getByText('Loading my account...')).toBeTruthy();
   });
 
   it('renders error state', async () => {

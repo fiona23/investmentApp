@@ -27,6 +27,7 @@ import { useFundDetails } from '../services/investmentService';
 import { useInvestmentStore } from '../store/investmentStore';
 import LoadingState from '../components/LoadingState';
 import ErrorState from '../components/ErrorState';
+import { colors } from '../utils/theme';
 
 type FundDetailsScreenRouteProp = RouteProp<RootStackParamList, 'FundDetails'>;
 
@@ -100,7 +101,7 @@ const FundDetailsScreen = () => {
           size={32}
           onPress={handleBack}
           style={styles.backButton}
-          iconColor="#007AFF"
+          iconColor={colors.primary[600]}
         />
       </View>
 
@@ -126,7 +127,7 @@ const FundDetailsScreen = () => {
           <Button
             mode="contained"
             onPress={handleSelectFund}
-            style={styles.topSelectButton}
+            style={styles.selectButton}
             disabled={remainingAllowance <= 0}
           >
             {remainingAllowance > 0 ? 'Select Fund' : 'ISA Allowance Exceeded'}
@@ -153,8 +154,11 @@ const FundDetailsScreen = () => {
             </View>
             <ProgressBar
               progress={allowanceProgress}
-              color="#2196F3"
-              style={styles.progressBar}
+              color={colors.primary[600]}
+              style={[
+                styles.progressBar,
+                { backgroundColor: colors.neutral[200] },
+              ]}
             />
           </Card.Content>
         </Card>
@@ -312,8 +316,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 16,
-    backgroundColor: 'transparent',
-    paddingBottom: 0,
+    paddingVertical: 8,
   },
   backButton: {
     marginRight: 0,
@@ -405,10 +408,7 @@ const styles = StyleSheet.create({
     marginTop: 8,
     borderRadius: 8,
   },
-  topSelectButton: {
-    marginTop: 16,
-    borderRadius: 8,
-  },
+
   allowanceWarning: {
     color: '#FF9800',
     marginTop: 8,

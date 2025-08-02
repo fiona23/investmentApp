@@ -49,7 +49,7 @@ describe('ProfileScreen', () => {
       await new Promise(resolve => setTimeout(resolve, 0));
     });
 
-    expect(screen.getByText('Profile')).toBeTruthy();
+    expect(screen.getByText('My Profile')).toBeTruthy();
   });
 
   it('renders user information', async () => {

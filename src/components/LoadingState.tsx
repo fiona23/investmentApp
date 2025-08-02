@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { ActivityIndicator, Text } from 'react-native-paper';
+import { colors, spacing, borderRadius, shadows } from '../utils/theme';
 
 interface LoadingStateProps {
   message?: string;
@@ -21,7 +22,18 @@ const LoadingState: React.FC<LoadingStateProps> = ({
 
   return (
     <View style={containerStyle}>
-      <ActivityIndicator size={size} color="#007AFF" />
+      {variant === 'fullscreen' && (
+        <View style={styles.loadingContent}>
+          <ActivityIndicator
+            size={size}
+            color={colors.primary[600]}
+            style={styles.spinner}
+          />
+        </View>
+      )}
+      {variant !== 'fullscreen' && (
+        <ActivityIndicator size={size} color={colors.primary[600]} />
+      )}
       {message && (
         <Text variant="bodyMedium" style={styles.message}>
           {message}
@@ -35,30 +47,31 @@ const styles = StyleSheet.create({
   container: {
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 20,
+    padding: spacing.lg,
   },
   fullscreen: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: colors.background.primary,
+  },
+  loadingContent: {
+    alignItems: 'center',
+    padding: spacing.xl,
+  },
+  spinner: {
+    marginBottom: spacing.md,
   },
   card: {
-    padding: 40,
-    backgroundColor: '#ffffff',
-    borderRadius: 8,
-    margin: 16,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 3.84,
-    elevation: 5,
+    padding: spacing.xl,
+    backgroundColor: colors.surface.primary,
+    borderRadius: borderRadius.lg,
+    margin: spacing.md,
+    ...shadows.md,
   },
   message: {
-    marginTop: 12,
-    color: '#666',
+    marginTop: spacing.sm,
+    color: colors.neutral[600],
     textAlign: 'center',
+    fontWeight: '500',
   },
 });
 

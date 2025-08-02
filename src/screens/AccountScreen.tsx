@@ -1,12 +1,14 @@
 import React, { useEffect } from 'react';
 import { View, ScrollView, StyleSheet } from 'react-native';
 import { Text, Card, Button } from 'react-native-paper';
+import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { RootStackParamList } from '../types/navigation';
 import { useInvestmentStore } from '../store/investmentStore';
-import { formatCurrency, formatDate } from '../utils/formatting';
+import { formatCurrency, formatDate, formatStatus } from '../utils/formatting';
+import { colors, spacing, borderRadius, shadows } from '../utils/theme';
 import LoadingState from '../components/LoadingState';
 import ErrorState from '../components/ErrorState';
 import EmptyState from '../components/EmptyState';
@@ -41,10 +43,23 @@ const AccountScreen = () => {
     navigation.navigate('TransactionHistory');
   };
 
+  const getStatusColor = (status: string) => {
+    switch (status.toLowerCase()) {
+      case 'pending':
+        return colors.secondary[600];
+      case 'completed':
+        return colors.success[600];
+      case 'failed':
+        return colors.error[600];
+      default:
+        return colors.neutral[600];
+    }
+  };
+
   if (isLoading) {
     return (
       <View style={styles.container}>
-        <LoadingState message="Loading your account..." variant="fullscreen" />
+        <LoadingState message="Loading my account..." variant="fullscreen" />
       </View>
     );
   }
@@ -80,10 +95,10 @@ const AccountScreen = () => {
           {/* Header */}
           <View style={styles.header}>
             <Text variant="headlineLarge" style={styles.title}>
-              Your Account
+              My Account
             </Text>
             <Text variant="bodyLarge" style={styles.subtitle}>
-              Track your investment portfolio
+              Track my investment portfolio
             </Text>
           </View>
 
@@ -111,42 +126,83 @@ const AccountScreen = () => {
         {/* Header */}
         <View style={styles.header}>
           <Text variant="headlineLarge" style={styles.title}>
-            Your Account
+            My Account
           </Text>
           <Text variant="bodyLarge" style={styles.subtitle}>
-            Track your investment portfolio
+            Track my investment portfolio
           </Text>
         </View>
 
         {/* Investment Summary */}
-        <Card style={styles.summaryCard} mode="outlined">
+        <Card style={styles.summaryCard} mode="elevated" elevation={2}>
           <Card.Content>
-            <Text variant="titleLarge" style={styles.summaryTitle}>
-              Investment Summary
-            </Text>
-            <View style={styles.summaryRow}>
-              <Text variant="bodyMedium">Total Invested:</Text>
-              <Text variant="bodyLarge" style={styles.summaryValue}>
-                {formatCurrency(investmentSummary.totalInvested)}
+            <View style={styles.summaryHeader}>
+              <Ionicons
+                name="trending-up"
+                size={24}
+                color={colors.primary[600]}
+              />
+              <Text variant="titleLarge" style={styles.summaryTitle}>
+                Investment Summary
               </Text>
             </View>
-            <View style={styles.summaryRow}>
-              <Text variant="bodyMedium">Number of Investments:</Text>
-              <Text variant="bodyLarge" style={styles.summaryValue}>
-                {investmentSummary.investmentCount}
-              </Text>
-            </View>
-            <View style={styles.summaryRow}>
-              <Text variant="bodyMedium">This Year's Total:</Text>
-              <Text variant="bodyLarge" style={styles.summaryValue}>
-                {formatCurrency(investmentSummary.currentYearTotal)}
-              </Text>
-            </View>
-            <View style={styles.summaryRow}>
-              <Text variant="bodyMedium">ISA Remaining:</Text>
-              <Text variant="bodyLarge" style={styles.summaryValue}>
-                {formatCurrency(investmentSummary.remainingISALimit)}
-              </Text>
+
+            <View style={styles.summaryGrid}>
+              <View style={styles.summaryItem}>
+                <Ionicons
+                  name="wallet-outline"
+                  size={20}
+                  color={colors.neutral[500]}
+                />
+                <Text variant="bodySmall" style={styles.summaryLabel}>
+                  Total Invested
+                </Text>
+                <Text variant="titleMedium" style={styles.summaryValue}>
+                  {formatCurrency(investmentSummary.totalInvested)}
+                </Text>
+              </View>
+
+              <View style={styles.summaryItem}>
+                <Ionicons
+                  name="layers-outline"
+                  size={20}
+                  color={colors.neutral[500]}
+                />
+                <Text variant="bodySmall" style={styles.summaryLabel}>
+                  Investments
+                </Text>
+                <Text variant="titleMedium" style={styles.summaryValue}>
+                  {investmentSummary.investmentCount}
+                </Text>
+              </View>
+
+              <View style={styles.summaryItem}>
+                <Ionicons
+                  name="calendar-outline"
+                  size={20}
+                  color={colors.neutral[500]}
+                />
+                <Text variant="bodySmall" style={styles.summaryLabel}>
+                  This Year
+                </Text>
+                <Text variant="titleMedium" style={styles.summaryValue}>
+                  {formatCurrency(investmentSummary.currentYearTotal)}
+                </Text>
+              </View>
+
+              <View style={styles.summaryItem}>
+                <Ionicons
+                  name="shield-outline"
+                  size={20}
+                  color={colors.neutral[500]}
+                />
+                <Text variant="bodySmall" style={styles.summaryLabel}>
+                  ISA Remaining
+                </Text>
+                <Text variant="titleMedium" style={styles.summaryValue}>
+                  {formatCurrency(investmentSummary.remainingISALimit)}
+                </Text>
+              </View>
             </View>
           </Card.Content>
         </Card>
@@ -166,26 +222,56 @@ const AccountScreen = () => {
                 View All
               </Button>
             </View>
-            {investments.slice(0, 3).map(investment => (
-              <View key={investment.id} style={styles.transactionItem}>
-                <View style={styles.transactionInfo}>
-                  <Text variant="bodyMedium" style={styles.fundName}>
-                    {investment.fundName}
-                  </Text>
-                  <Text variant="bodySmall" style={styles.transactionDate}>
-                    {formatDate(investment.createdAt)}
-                  </Text>
+            {investments
+              .sort(
+                (a, b) =>
+                  new Date(b.createdAt).getTime() -
+                  new Date(a.createdAt).getTime()
+              )
+              .slice(0, 3)
+              .map(investment => (
+                <View key={investment.id} style={styles.transactionItem}>
+                  <View style={styles.transactionInfo}>
+                    <Text variant="bodyMedium" style={styles.fundName}>
+                      {investment.fundName}
+                    </Text>
+                    <Text variant="bodySmall" style={styles.transactionDate}>
+                      {formatDate(investment.createdAt)}
+                    </Text>
+                  </View>
+                  <View style={styles.transactionAmount}>
+                    <Text variant="bodyLarge" style={styles.amount}>
+                      {formatCurrency(investment.amount)}
+                    </Text>
+                    <View
+                      style={[
+                        styles.statusBadge,
+                        {
+                          backgroundColor:
+                            getStatusColor(investment.status) + '20',
+                        },
+                      ]}
+                    >
+                      <View
+                        style={[
+                          styles.statusDot,
+                          {
+                            backgroundColor: getStatusColor(investment.status),
+                          },
+                        ]}
+                      />
+                      <Text
+                        style={[
+                          styles.statusText,
+                          { color: getStatusColor(investment.status) },
+                        ]}
+                      >
+                        {formatStatus(investment.status)}
+                      </Text>
+                    </View>
+                  </View>
                 </View>
-                <View style={styles.transactionAmount}>
-                  <Text variant="bodyLarge" style={styles.amount}>
-                    {formatCurrency(investment.amount)}
-                  </Text>
-                  <Text variant="bodySmall" style={styles.status}>
-                    {investment.status}
-                  </Text>
-                </View>
-              </View>
-            ))}
+              ))}
           </Card.Content>
         </Card>
 
@@ -214,52 +300,84 @@ const AccountScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: colors.background.primary,
   },
   scrollView: {
     flex: 1,
   },
   contentContainer: {
-    paddingHorizontal: 16,
+    paddingHorizontal: spacing.md,
   },
   header: {
-    marginBottom: 24,
+    marginBottom: spacing.xl,
   },
+
   title: {
     fontWeight: '600',
     marginBottom: 8,
   },
   subtitle: {
-    color: '#666',
+    color: colors.neutral[600],
+    fontWeight: '500',
   },
   summaryCard: {
-    marginBottom: 24,
+    marginBottom: spacing.xl,
+    borderRadius: borderRadius.lg,
+    backgroundColor: colors.surface.primary,
+    ...shadows.md,
+  },
+  summaryHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: spacing.lg,
   },
   summaryTitle: {
-    fontWeight: '600',
-    marginBottom: 16,
+    fontWeight: '700',
+    marginLeft: spacing.sm,
+    color: colors.neutral[800],
   },
-  summaryRow: {
+  summaryGrid: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     justifyContent: 'space-between',
+  },
+  summaryItem: {
+    width: '48%',
     alignItems: 'center',
-    marginBottom: 12,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.sm,
+    backgroundColor: colors.neutral[100],
+    borderRadius: borderRadius.md,
+    marginBottom: spacing.sm,
+  },
+  summaryLabel: {
+    color: colors.neutral[700],
+    marginTop: spacing.xs,
+    marginBottom: spacing.xs,
+    fontWeight: '500',
+    textAlign: 'center',
   },
   summaryValue: {
-    fontWeight: '600',
-    color: '#2196F3',
+    fontWeight: '700',
+    color: colors.primary[600],
+    textAlign: 'center',
   },
+
   transactionsCard: {
-    marginBottom: 24,
+    marginBottom: spacing.xl,
+    borderRadius: borderRadius.lg,
+    backgroundColor: colors.surface.primary,
+    ...shadows.md,
   },
   transactionsHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: spacing.md,
   },
   transactionsTitle: {
-    fontWeight: '600',
+    fontWeight: '700',
+    color: colors.neutral[800],
   },
   viewAllButton: {
     paddingVertical: 0,
@@ -268,36 +386,55 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 12,
+    paddingVertical: spacing.sm,
     borderBottomWidth: 1,
-    borderBottomColor: '#eee',
+    borderBottomColor: colors.neutral[200],
   },
   transactionInfo: {
     flex: 1,
   },
   fundName: {
-    fontWeight: '500',
-    marginBottom: 4,
+    fontWeight: '600',
+    marginBottom: spacing.xs,
+    color: colors.neutral[800],
   },
   transactionDate: {
-    color: '#666',
+    color: colors.neutral[500],
+    fontSize: 12,
   },
   transactionAmount: {
     alignItems: 'flex-end',
   },
   amount: {
-    fontWeight: '600',
-    color: '#2196F3',
+    fontWeight: '700',
+    color: colors.primary[600],
   },
-  status: {
-    color: '#4CAF50',
+
+  statusBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+    marginTop: 4,
+  },
+  statusDot: {
+    width: 4,
+    height: 4,
+    borderRadius: 2,
+    marginRight: 4,
+  },
+  statusText: {
     textTransform: 'capitalize',
+    fontWeight: '600',
+    fontSize: 10,
   },
   actions: {
-    gap: 12,
+    gap: spacing.sm,
   },
   actionButton: {
-    marginBottom: 8,
+    marginBottom: spacing.sm,
+    borderRadius: borderRadius.md,
   },
 });
 

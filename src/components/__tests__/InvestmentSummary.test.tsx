@@ -60,16 +60,16 @@ describe('InvestmentSummary', () => {
   it('displays investment details correctly', () => {
     render(<InvestmentSummary {...defaultProps} />);
     expect(screen.getByText('Investment Details')).toBeTruthy();
-    expect(screen.getByText('Amount:')).toBeTruthy();
+    expect(screen.getByText('Amount')).toBeTruthy();
     expect(screen.getByText('£1,000.00')).toBeTruthy();
-    expect(screen.getByText('ISA Annual Limit:')).toBeTruthy();
+    expect(screen.getByText('ISA Annual Limit')).toBeTruthy();
     expect(screen.getByText('£15,000.00')).toBeTruthy();
   });
 
   it('shows warnings when amount exceeds limit', () => {
     render(<InvestmentSummary {...defaultProps} amount={25000} />);
     expect(screen.getByText('Warnings')).toBeTruthy();
-    expect(screen.getByText('• Amount exceeds ISA annual limit')).toBeTruthy();
+    expect(screen.getByText('Amount exceeds ISA annual limit')).toBeTruthy();
   });
 
   it('shows over limit notice when amount exceeds ISA remaining', () => {

@@ -16,11 +16,17 @@ export const getInvestments = async (): Promise<Investment[]> => {
     const investments = JSON.parse(data);
 
     // Ensure dates are properly deserialized
-    return investments.map((investment: any) => ({
-      ...investment,
-      createdAt: new Date(investment.createdAt),
-      updatedAt: new Date(investment.updatedAt),
-    }));
+    return investments.map(
+      (investment: {
+        createdAt: string;
+        updatedAt: string;
+        [key: string]: unknown;
+      }) => ({
+        ...investment,
+        createdAt: new Date(investment.createdAt),
+        updatedAt: new Date(investment.updatedAt),
+      })
+    );
   } catch (error) {
     console.error('Error loading investments:', error);
     return [];
@@ -140,8 +146,38 @@ export const updateInvestmentSummary = async (): Promise<void> => {
       averageReturn: 0, // This would be calculated from actual returns
     };
 
+    // Debug logging
+    console.log('Investment Summary Calculation:', {
+      currentYear,
+      currentYearInvestments: currentYearInvestments.length,
+      currentYearTotal,
+      remainingISALimit: summary.remainingISALimit,
+      totalInvestments: investments.length,
+    });
+
     await saveInvestmentSummary(summary);
   } catch (error) {
     console.error('Error updating investment summary:', error);
+  }
+};
+
+export const resetISAAllowance = async (): Promise<void> => {
+  try {
+    // Clear all investments
+    await saveInvestments([]);
+
+    // Reset investment summary to full allowance
+    const summary: InvestmentSummary = {
+      totalInvested: 0,
+      investmentCount: 0,
+      currentYearTotal: 0,
+      remainingISALimit: 20000,
+      averageReturn: 0,
+    };
+
+    await saveInvestmentSummary(summary);
+    console.log('ISA allowance reset to £20,000');
+  } catch (error) {
+    console.error('Error resetting ISA allowance:', error);
   }
 };

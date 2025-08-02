@@ -39,7 +39,7 @@ describe('FundCard', () => {
     expect(getByText('Medium')).toBeTruthy();
     expect(getByText('5.5%')).toBeTruthy();
     expect(getByText('Equities')).toBeTruthy();
-    expect(getByText('£100.00')).toBeTruthy();
+    expect(getByText('Min investment: £100.00')).toBeTruthy();
     expect(getByText('£1,000,000.00')).toBeTruthy();
   });
 

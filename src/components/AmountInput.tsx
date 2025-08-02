@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { TextInput, Text, HelperText } from 'react-native-paper';
+import { Ionicons } from '@expo/vector-icons';
 import { Fund } from '../types/fund';
 import { validateInvestmentAmount } from '../utils/validation';
 import { formatCurrency } from '../utils/formatting';
 import { APP_CONSTANTS } from '../utils/constants';
+import { colors, spacing } from '../utils/theme';
 
 interface AmountInputProps {
   value: string;
@@ -76,6 +78,8 @@ const AmountInput: React.FC<AmountInputProps> = ({
         left={<TextInput.Affix text="£" />}
         error={!!displayError}
         placeholder={placeholder}
+        outlineColor={colors.neutral[300]}
+        activeOutlineColor={colors.primary[600]}
       />
 
       {displayError && (
@@ -85,6 +89,12 @@ const AmountInput: React.FC<AmountInputProps> = ({
       )}
 
       <View style={styles.limitInfo}>
+        <Ionicons
+          name="information-circle-outline"
+          size={16}
+          color={colors.neutral[500]}
+          style={styles.limitIcon}
+        />
         <Text variant="bodySmall" style={styles.limitText}>
           {maxAmount
             ? `Max Investment: ${formatCurrency(maxAmount)}`
@@ -97,17 +107,24 @@ const AmountInput: React.FC<AmountInputProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: 16,
+    marginBottom: spacing.md,
   },
   input: {
-    marginBottom: 8,
+    marginBottom: spacing.sm,
   },
   limitInfo: {
-    marginTop: 8,
+    marginTop: spacing.sm,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  limitIcon: {
+    marginRight: spacing.xs,
   },
   limitText: {
-    color: '#666',
+    color: colors.neutral[600],
     textAlign: 'center',
+    fontWeight: '500',
   },
 });
 
