@@ -1,13 +1,14 @@
 import React, { useEffect } from 'react';
-import { View, StyleSheet, ScrollView } from 'react-native';
+import { View, StyleSheet, ScrollView, Alert } from 'react-native';
 import { Text, Card, Button, List, Avatar, Divider } from 'react-native-paper';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { formatCurrency } from '../utils/formatting';
 import { useInvestmentStore } from '../store/investmentStore';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const ProfileScreen = () => {
   const insets = useSafeAreaInsets();
-  const { investmentSummary, loadInvestmentSummary, isLoading } =
+  const { investmentSummary, loadInvestmentSummary, isLoading, refreshData } =
     useInvestmentStore();
 
   // Mock user data - in real app this would come from state management
@@ -31,6 +32,44 @@ const ProfileScreen = () => {
 
   const handleContactSupport = () => {
     // Open support contact
+  };
+
+  const handleClearStorage = () => {
+    Alert.alert(
+      'Clear Storage',
+      'This will clear all your investment data and reset the app to its initial state. This action cannot be undone.',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Clear All Data',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              // Clear AsyncStorage
+              await AsyncStorage.clear();
+
+              // Refresh the store to reflect the cleared data
+              await refreshData();
+
+              Alert.alert(
+                'Storage Cleared',
+                'All investment data has been cleared successfully.',
+                [{ text: 'OK' }]
+              );
+            } catch {
+              Alert.alert(
+                'Error',
+                'Failed to clear storage. Please try again.',
+                [{ text: 'OK' }]
+              );
+            }
+          },
+        },
+      ]
+    );
   };
 
   return (
@@ -144,6 +183,17 @@ const ProfileScreen = () => {
               right={props => <List.Icon {...props} icon="chevron-right" />}
               onPress={handleContactSupport}
             />
+
+            <Divider />
+
+            <List.Item
+              title="Clear Storage"
+              description="Clear all investment data and reset app"
+              left={props => <List.Icon {...props} icon="delete" />}
+              right={props => <List.Icon {...props} icon="chevron-right" />}
+              onPress={handleClearStorage}
+              titleStyle={styles.clearStorageTitle}
+            />
           </Card.Content>
         </Card>
 
@@ -234,6 +284,9 @@ const styles = StyleSheet.create({
   },
   actionButton: {
     marginBottom: 8,
+  },
+  clearStorageTitle: {
+    color: '#d32f2f',
   },
 });
 

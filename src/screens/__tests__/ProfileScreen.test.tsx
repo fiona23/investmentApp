@@ -88,5 +88,6 @@ describe('ProfileScreen', () => {
     expect(screen.getByText('Settings')).toBeTruthy();
     expect(screen.getByText('Edit Profile')).toBeTruthy();
     expect(screen.getByText('Contact Support')).toBeTruthy();
+    expect(screen.getByText('Clear Storage')).toBeTruthy();
   });
 });

@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, ScrollView, StyleSheet } from 'react-native';
+import { View, ScrollView, StyleSheet, Alert } from 'react-native';
 import { Text, Button, IconButton } from 'react-native-paper';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -11,6 +11,7 @@ import LoadingState from '../components/LoadingState';
 import ErrorState from '../components/ErrorState';
 import { useFunds } from '../services/investmentService';
 import { useInvestmentStore } from '../store/investmentStore';
+import { formatCurrency } from '../utils/formatting';
 
 type InvestmentSummaryScreenNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
@@ -46,12 +47,29 @@ const InvestmentSummaryScreen = () => {
         status: 'pending' as const,
       };
 
-      addInvestment(investmentData);
+      await addInvestment(investmentData);
 
-      // Navigate back to account screen on success
-      navigation.navigate('Main');
+      // Show success feedback
+      Alert.alert(
+        'Investment Successful!',
+        `Your investment of ${formatCurrency(amount)} in ${fundName} has been confirmed.`,
+        [
+          {
+            text: 'View Account',
+            onPress: () => {
+              // Navigate to account screen
+              navigation.navigate('Main', { screen: 'Account' });
+            },
+          },
+        ]
+      );
     } catch (error) {
       console.error('Failed to create investment:', error);
+      Alert.alert(
+        'Investment Failed',
+        'There was an error processing your investment. Please try again.',
+        [{ text: 'OK' }]
+      );
     }
   };
 
