@@ -1,24 +1,50 @@
-# Investment App
+# Cushon ISA Investment App
 
-A React Native application built with Expo and TypeScript for investment management.
+A React Native application built with Expo and TypeScript for managing ISA (Individual Savings Account) investments. This app allows users to browse funds, make investments, and track their portfolio.
 
-## Getting Started
+## 🛠️ Technologies Used
 
-This project uses pnpm as the package manager. Make sure you have pnpm installed:
+- **React Native** - Mobile app framework
+- **Expo** - Development platform and tooling
+- **TypeScript** - Type-safe JavaScript development
+- **React Navigation** - Navigation library with tab and stack navigators
+- **React Native Paper** - Material Design component library
+- **Zustand** - Lightweight state management
+- **AsyncStorage** - Local data persistence
+- **React Query** - Data fetching and caching (for mock APIs)
+- **Jest + React Native Testing Library** - Testing framework
+- **ESLint + Prettier** - Code quality and formatting
+- **Husky** - Git hooks for code quality
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- Node.js (v18 or higher)
+- pnpm package manager
+- Expo CLI (optional, for development)
+
+### Installation
+
+1. **Install pnpm** (if not already installed):
 
 ```bash
 npm install -g pnpm
 ```
 
-## Installation
-
-Install dependencies:
+2. **Install dependencies**:
 
 ```bash
 pnpm install
 ```
 
-## Available Commands
+3. **Start the development server**:
+
+```bash
+pnpm start
+```
+
+## 📋 Available Commands
 
 ### Development
 
@@ -27,6 +53,12 @@ pnpm install
 - `pnpm ios` - Run on iOS simulator/device
 - `pnpm web` - Run in web browser
 
+### Testing
+
+- `pnpm test` - Run all tests
+- `pnpm test --watch` - Run tests in watch mode
+- `pnpm test --coverage` - Run tests with coverage
+
 ### Code Quality
 
 - `pnpm lint` - Run ESLint
@@ -34,63 +66,16 @@ pnpm install
 - `pnpm format` - Format code with Prettier
 - `pnpm format:check` - Check code formatting
 
-### Package Management
+## 🎯 User Journey
 
-- `pnpm install` - Install dependencies
-- `pnpm add <package>` - Add a new dependency
-- `pnpm add -D <package>` - Add a new dev dependency
-- `pnpm remove <package>` - Remove a dependency
-- `pnpm update` - Update dependencies
+1. **First Launch**: Empty state with option to browse funds
+2. **Fund Browsing**: View available funds with performance data
+3. **Fund Selection**: Detailed fund information and investment option
+4. **Investment Process**: Amount input with ISA validation
+5. **Confirmation**: Review investment details and confirm
+6. **Success**: Success feedback and navigation to account
+7. **Portfolio Management**: View investments and transaction history
 
-## Project Structure
+## 📄 License
 
-```
-investmentApp/
-├── App.tsx              # Main application component
-├── index.ts             # Entry point
-├── tsconfig.json        # TypeScript configuration
-├── package.json         # Dependencies and scripts
-├── app.json            # Expo configuration
-├── assets/             # Images and other assets
-└── node_modules/       # Dependencies (generated)
-```
-
-## Technologies Used
-
-- **React Native** - Mobile app framework
-- **Expo** - Development platform
-- **TypeScript** - Type-safe JavaScript
-- **pnpm** - Fast, disk space efficient package manager
-- **React Navigation** - Navigation library
-- **ESLint + Prettier** - Code quality and formatting
-- **Husky** - Git hooks for code quality
-
-## Development
-
-1. Start the development server: `pnpm start`
-2. Use Expo Go app on your device to scan the QR code
-3. Or run on specific platforms:
-   - Android: `pnpm android`
-   - iOS: `pnpm ios`
-   - Web: `pnpm web`
-
-## Contributing
-
-1. Install dependencies: `pnpm install`
-2. Make your changes
-3. Check code quality: `pnpm lint`
-4. Format code: `pnpm format`
-5. Test your changes on different platforms
-6. Submit a pull request
-
-## Development Tools
-
-### Code Quality
-
-- ESLint for code linting with TypeScript support
-- Prettier for code formatting
-- Husky for pre-commit hooks that run linting and formatting
-
-## License
-
-This project is licensed under the MIT License.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
