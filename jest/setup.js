@@ -36,19 +36,91 @@ jest.mock('react-native-safe-area-context', () => {
 // Mock react-native-paper
 jest.mock('react-native-paper', () => {
   const React = require('react');
-  const { View } = require('react-native');
+  const { View, Text: RNText, TouchableOpacity } = require('react-native');
 
   const PaperProvider = ({ children }) =>
     React.createElement(View, null, children);
-  const Text = ({ children, style }) =>
-    React.createElement(View, { style }, children);
-  const Button = ({ children, onPress, style }) =>
-    React.createElement(View, { style, onPress }, children);
+  const Text = ({ children, style, ...props }) =>
+    React.createElement(RNText, { style, ...props }, children);
+  const Button = ({ children, onPress, style, disabled, ...props }) =>
+    React.createElement(
+      TouchableOpacity,
+      {
+        style,
+        onPress: disabled ? undefined : onPress,
+        disabled,
+        ...props,
+      },
+      children
+    );
+
+  const Card = ({ children, style, ...props }) =>
+    React.createElement(View, { style, ...props }, children);
+
+  Card.Content = ({ children, style, ...props }) =>
+    React.createElement(View, { style, ...props }, children);
+
+  const Chip = ({ children, textStyle, style, onPress, ...props }) =>
+    React.createElement(
+      TouchableOpacity,
+      {
+        style,
+        onPress,
+        ...props,
+      },
+      React.createElement(RNText, { style: textStyle }, children)
+    );
+
+  const IconButton = ({ icon, style, onPress, testID, ...props }) =>
+    React.createElement(
+      TouchableOpacity,
+      {
+        style,
+        onPress,
+        testID,
+        ...props,
+      },
+      React.createElement(RNText, null, icon)
+    );
+
+  const TextInput = ({
+    value,
+    onChangeText,
+    style,
+    left,
+    right,
+    placeholder,
+    disabled,
+    keyboardType,
+    ...props
+  }) => {
+    const inputElement = React.createElement(RNText, {
+      value,
+      onChangeText,
+      style,
+      placeholder,
+      disabled,
+      keyboardType,
+      ...props,
+    });
+
+    return React.createElement(View, { style }, left, inputElement, right);
+  };
+
+  TextInput.Affix = ({ text, style, ...props }) =>
+    React.createElement(RNText, { style, ...props }, text);
+
+  const HelperText = ({ children, visible, style, ...props }) =>
+    visible ? React.createElement(RNText, { style, ...props }, children) : null;
 
   return {
     PaperProvider,
     Text,
     Button,
-    // Add other components as needed
+    Card,
+    Chip,
+    IconButton,
+    TextInput,
+    HelperText,
   };
 });
