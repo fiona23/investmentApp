@@ -38,8 +38,10 @@ jest.mock('react-native-paper', () => {
   const React = require('react');
   const { View, Text: RNText, TouchableOpacity } = require('react-native');
 
-  const PaperProvider = ({ children }) =>
-    React.createElement(View, null, children);
+  // Create a simple mock for PaperProvider that doesn't try to access internal properties
+  const PaperProvider = ({ children }) => {
+    return React.createElement(View, { testID: 'paper-provider' }, children);
+  };
   const Text = ({ children, style, ...props }) =>
     React.createElement(RNText, { style, ...props }, children);
   const Button = ({ children, onPress, style, disabled, ...props }) =>
@@ -113,6 +115,23 @@ jest.mock('react-native-paper', () => {
   const HelperText = ({ children, visible, style, ...props }) =>
     visible ? React.createElement(RNText, { style, ...props }, children) : null;
 
+  const Divider = ({ style, ...props }) =>
+    React.createElement(View, { style, ...props });
+
+  const Searchbar = ({ placeholder, onChangeText, style, ...props }) =>
+    React.createElement(
+      TouchableOpacity,
+      {
+        style,
+        onPress: () => onChangeText && onChangeText(''),
+        ...props,
+      },
+      React.createElement(RNText, null, placeholder)
+    );
+
+  const ActivityIndicator = ({ ...props }) =>
+    React.createElement(View, { ...props }, 'Loading...');
+
   return {
     PaperProvider,
     Text,
@@ -122,5 +141,8 @@ jest.mock('react-native-paper', () => {
     IconButton,
     TextInput,
     HelperText,
+    Divider,
+    Searchbar,
+    ActivityIndicator,
   };
 });

@@ -5,6 +5,6 @@ import FundScreen from '../FundScreen';
 describe('FundScreen', () => {
   it('renders funds screen title', () => {
     render(<FundScreen />);
-    expect(screen.getByText('Funds Screen')).toBeTruthy();
+    expect(screen.getByText('Investment Funds')).toBeTruthy();
   });
 });
