@@ -61,7 +61,6 @@ investmentApp/
 - **Expo** - Development platform
 - **TypeScript** - Type-safe JavaScript
 - **pnpm** - Fast, disk space efficient package manager
-- **Gluestack UI** - Modern UI component library
 - **React Navigation** - Navigation library
 - **ESLint + Prettier** - Code quality and formatting
 - **Husky** - Git hooks for code quality
@@ -85,10 +84,6 @@ investmentApp/
 6. Submit a pull request
 
 ## Development Tools
-
-### Gluestack UI
-
-This project uses Gluestack UI for modern, accessible components. See the `src/components/InvestmentCard.tsx` for an example.
 
 ### Code Quality
 

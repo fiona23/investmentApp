@@ -25,7 +25,7 @@ module.exports = [
   },
   js.configs.recommended,
   {
-    files: ['src/**/*.{ts,tsx,js,jsx}', 'App.tsx'],
+    files: ['src/**/*.{ts,tsx,js,jsx}', 'App.tsx', 'jest/setup.js'],
     languageOptions: {
       parser: typescriptParser,
       parserOptions: {
